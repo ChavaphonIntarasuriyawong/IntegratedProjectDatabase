@@ -1,0 +1,210 @@
+Enum roles {
+  USER
+  ADMIN
+}
+
+Enum genders {
+  MALE
+  FEMALE
+}
+
+Table department {
+  id int [primary key]
+  department_name varchar[255]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table users {
+  id int [primary key]
+  username varchar[25]
+  first_name varchar[100]
+  middle_name varchar[100]
+  last_name varchar[100]
+  gender genders
+  role roles
+  password_hash varchar[255] [not null]
+  email varchar[255] [unique, not null]
+  phone varchar[15] [unique, not null]
+  address text [not null]
+  birth_date datetime [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+table users_departments {
+  user_id int [primary key, note: 'fk']
+  department_id int [primary key, note: 'fk']
+}
+
+// Freecycle
+Table freecycle_posts {
+  id int [primary key]
+  item_name varchar[100] [not null]
+  photo_url text [not null]
+  description text [not null]
+  user_id int [note: 'fk, CONSTRAINT', null]
+  department_id int [note: 'fk, CONSTRAINT', null]
+  isGiven boolean [note: 'default: false']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table categories {
+  id int [primary key]
+  category_name varchar[100] [note: 'default: furniture, electronic, etc.']
+  created_at timestamp
+  updated_at timestamp
+}
+
+// junction table
+Table freecycle_posts_categories {
+  post_id int [primary key, note: 'fk']
+  category_id int [primary key, note: 'fk']
+  
+}
+//
+
+
+// volunteer Table
+
+Enum volunteer_event_status {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+table volunteer_events {
+  id int [primary key]
+  user_created_event_id int [note: 'fk']
+  title varchar[255] [not null]
+  description text [not null]
+  start_date timestamp
+  end_date timestamp
+  register_deadline datetime
+  location text
+  status volunteer_event_status [note: 'default: DRAFT']
+  created_at timestamp
+  updated_at timestamp
+}
+
+table volunteer_event_participation {
+  id int [pk]
+  volunteer_event_id int [note: 'fk']
+  participated_user_id int [note: 'fk']
+  current_participator int [default: 0, not null]
+  avaliable_seat int [not null, default: 0]
+  total_seat int [not null, default: 1]
+  created_at timestamp
+  updated_at timestamp
+}
+//
+
+
+// know ai
+enum course_types {
+  ONLINE
+  ONSITE
+  ONLINEANDONSITE
+}
+
+
+table online_courses {
+  id int [primary key]
+  video_name varchar[100] [not null]
+  video_description text [not null]
+  duration_minutes varchar[10] [not null]
+  video_order int [not null]
+  video_file_path text [not null]
+  course_id int [note: 'fk', not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+table onsites{
+  id int [primary key]
+  course_id int [note: 'fk']
+  event_venue text [not null]
+  duration_hours varchar[5]
+  event_datetime datetime [not null]
+  registration_deadline datetime [not null]
+  avaliable_seat int [not null, default: 0]
+  total_seat int [not null, default: 1]
+  created_at timestamp
+  updated_at timestamp
+}
+
+table onsite_enrollments {
+  id int [primary key]
+  onsite_id int [note: 'fk']
+  user_id int [primary key, note: 'for who wants to study onsite.']
+
+}
+
+table courses {
+  id int [primary key]
+  course_name varchar[100] [not null]
+  course_description text [not null]
+  course_type course_types [not null]
+  cover_image text [note: 'url', not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+
+// added eventAdmin, event, bookmark
+table eventAdmin{
+  id int [primary key]
+  name varchar[25]
+  email varchar[255]
+}
+
+table event {
+  id int [primary key]
+  title varchar[50]
+  description varchar[255]
+  date date
+  time timestamp
+  location text
+  organizerEmail varchar[255]
+  postedByAdminId int [note: 'fk']
+}
+
+table bookmark {
+  userId int [note: 'fk', primary key]
+  eventId int [note: 'fk', primary key]
+  createdAt time
+}
+
+Ref: "event"."postedByAdminId" < "eventAdmin"."id"
+
+Ref: "bookmark"."userId" < "users"."id" 
+
+Ref: "bookmark"."eventId" < "event"."id"
+
+Ref: "users"."id" < "users_departments"."user_id"
+
+Ref: "department"."id" < "users_departments"."department_id"
+
+Ref: "users"."id" - "freecycle_posts"."user_id"
+
+Ref: "categories"."id" < "freecycle_posts_categories"."category_id"
+
+Ref: "freecycle_posts"."department_id" - "department"."id"
+  
+Ref: "freecycle_posts"."id" < "freecycle_posts_categories"."post_id"
+
+Ref: "users"."id" < "volunteer_events"."user_created_event_id"
+
+Ref: "volunteer_events"."id" < "volunteer_event_participation"."volunteer_event_id"
+
+Ref: "users"."id" < "volunteer_event_participation"."participated_user_id"
+
+Ref: "courses"."id" < "online_courses"."course_id"
+
+Ref: "courses"."id" < "onsites"."id"
+
+Ref: "onsites"."id" < "onsite_enrollments"."onsite_id"
+
+Ref: "users"."id" < "onsite_enrollments"."user_id"
