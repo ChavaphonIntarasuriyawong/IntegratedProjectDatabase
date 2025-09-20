@@ -6,9 +6,7 @@ Stores user roles within the system.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the role. |
-
 | `role_name` | `varchar(50)` | | The name of the role (e.g., 'Admin', 'User', 'Doctor', etc.). |
 
 ### Table: `departments`
@@ -26,7 +24,6 @@ The main table for storing user profile information.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the user. |
 | `username` | `varchar(25)` | | The user's chosen username. |
 | `first_name` | `varchar(255)` | | The user's first name. |
@@ -62,7 +59,6 @@ Stores general information about available courses.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the course. |
 | `course_name` | `varchar(255)` | `NOT NULL` | The title of the course. |
 | `course_description` | `text` | `NOT NULL` | A detailed description of the course. |
@@ -121,7 +117,6 @@ Stores details about events.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the event. |
 | `host_event_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user hosting the event. |
 | `title` | `varchar(255)` | | The title of the event. |
@@ -154,7 +149,6 @@ Stores posts created by users for items they are giving away.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the post. |
 | `item_name` | `varchar(100)` | `NOT NULL` | The name of the item being offered. |
 | `item_weight` | `decimal` | | The weight of the item. |
@@ -172,7 +166,6 @@ Stores categories for freecycle items (e.g., 'Furniture', 'Electronics').
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the category. |
 | `category_name`| `varchar(100)` | | The name of the category. |
 | `created_at` | `timestamp` | | Timestamp of when the category was created. |
@@ -193,10 +186,8 @@ This group manages data related to air quality and environmental context.
 ***
 ### Table: `air_quality`
 Stores air quality index (AQI) and pollutant measurements for specific locations.
-
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the air quality reading. |
 | `location` | `text` | `NOT NULL` | The location where the measurement was taken. |
 | `aqi` | `decimal` | | The overall Air Quality Index value. |
@@ -214,7 +205,6 @@ Stores weather-related data that can affect air quality.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the weather context record. |
 | `rain_forecast`| `decimal` | | The forecasted probability or amount of rain. |
 | `created_at` | `timestamp` | | Timestamp of when the record was created. |
@@ -224,7 +214,6 @@ Stores traffic data that can influence air quality.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the traffic context record. |
 | `congestion_level`| `decimal` | | A metric representing the level of traffic congestion. |
 | `created_at` | `timestamp` | | Timestamp of when the record was created. |
@@ -238,7 +227,6 @@ Stores information about volunteer opportunities.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the volunteer event. |
 | `user_created_event_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user who created the event. |
 | `title` | `varchar(255)` | `NOT NULL` | The title of the volunteer event. |
@@ -247,7 +235,6 @@ Stores information about volunteer opportunities.
 | `end_date` | `timestamp` | | The end date and time of the event. |
 | `register_deadline` | `timestamp` | | The deadline for registration. |
 | `location` | `text` | | The location of the event. |
-
 | `status` | `volunteer_event_status` (Enum) | | The status (`DRAFT`, `PENDING`, `APPROVED`). |
 | `created_at` | `timestamp` | | Timestamp of when the event was created. |
 | `updated_at` | `timestamp` | | Timestamp of the last update. |
@@ -257,7 +244,6 @@ Tracks user participation in volunteer events.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the participation record. |
 | `volunteer_event_id` | `int` | **Foreign Key** (`volunteer_events.id`) | The ID of the volunteer event. |
 | `participated_user_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user participating. |
