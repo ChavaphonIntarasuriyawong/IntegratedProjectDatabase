@@ -156,7 +156,7 @@ Stores posts created by users for items they are giving away.
 | `photo_url` | `text` | `NOT NULL` | URL to a photo of the item. |
 | `description` | `text` | `NOT NULL` | A description of the item. |
 | `user_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user who created the post. |
-| `department_id` | `int` | **Foreign Key** (`departments.id`) | The department associated with the post. |
+| `donate_to_department_id` | `int` | **Foreign Key** (`departments.id`) | Indicates if the user chose to donate the item to a department or give it to another user. Can be NULL if the item is given to another user instead of being donated to a department. |
 | `is_given` | `boolean` | `DEFAULT: false` | A flag indicating if the item has been given away. |
 | `created_at` | `timestamp` | | Timestamp of when the post was created. |
 | `updated_at` | `timestamp` | | Timestamp of the last update. |
