@@ -15,7 +15,7 @@ Stores information about different departments.
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the department. |
-| `department_name` | `varchar(255)` | | The name of the department. |
+| `department_name` | `varchar(255)` | | The name of the department (e.g., 'Volunteer', 'Event', etc.). |
 | `created_at` | `timestamp` | | Timestamp of when the record was created. |
 | `updated_at` | `timestamp` | | Timestamp of the last update to the record. |
 
