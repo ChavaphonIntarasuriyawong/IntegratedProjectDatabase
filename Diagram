@@ -381,7 +381,7 @@ table insurance_transactions {
   transaction_type card_transaction_type
   amount decimal [default: 0.0]
   description varchar[255]
-  service_reference varchar[50] [ref: - appointments.type, note: "health team reference"]
+  service_reference varchar[50] [note: "health team reference"]
   created_at timestamp
 }
 
