@@ -1,5 +1,5 @@
 Table roles {
-  id int [primary key]
+  id int [pk]
   role_name varchar[50]
 }
 
@@ -9,20 +9,24 @@ Enum genders {
 }
 
 Table departments {
-  id int [primary key]
+  id int [pk, ref: < users_departments.department_id]
   department_name varchar[255]
   created_at timestamp
   updated_at timestamp
 }
 
 Table users {
-  id int [primary key]
+  id int [pk, ref: < users_departments.user_id, 
+  ref: - freecycle_posts.user_id, 
+  ref: < volunteer_events.user_created_event_id,
+  ref: < volunteer_event_participation.participated_user_id,
+  ref: < onsite_enrollments.user_id]
   username varchar[25]
   first_name varchar[100]
   middle_name varchar[100]
   last_name varchar[100]
   gender genders
-  role_id int [note: 'fk']
+  role_id int [ref: - roles.id]
   password_hash varchar[255] [not null]
   email varchar[255] [unique, not null]
   phone varchar[15] [unique, not null]
@@ -33,41 +37,39 @@ Table users {
 }
 
 table users_departments {
-  user_id int [primary key, note: 'fk']
-  department_id int [primary key, note: 'fk']
+  user_id int [pk]
+  department_id int [pk]
 }
 
-// Freecycle
+
+//G4 freecycle
 Table freecycle_posts {
-  id int [primary key]
+  id int [pk, ref: < freecycle_posts_categories.post_id]
   item_name varchar[100] [not null]
   photo_url text [not null]
   description text [not null]
-  user_id int [note: 'fk, CONSTRAINT', null]
-  department_id int [note: 'fk, CONSTRAINT', null]
-  isGiven boolean [note: 'default: false']
+  user_id int [note: 'CONSTRAINT', null]
+  department_id int [note: 'CONSTRAINT', null, ref: - departments.id]
+  isGiven boolean [default: false]
   created_at timestamp
   updated_at timestamp
 }
 
 Table categories {
-  id int [primary key]
+  id int [pk, ref: < freecycle_posts_categories.category_id]
   category_name varchar[100] [note: 'default: furniture, electronic, etc.']
   created_at timestamp
   updated_at timestamp
 }
 
-// junction table
 Table freecycle_posts_categories {
-  post_id int [primary key, note: 'fk']
-  category_id int [primary key, note: 'fk']
+  post_id int [pk]
+  category_id int [pk]
   
 }
-//
 
 
-// volunteer Table
-
+//G6 volunteer
 Enum volunteer_event_status {
   DRAFT
   PENDING
@@ -76,8 +78,8 @@ Enum volunteer_event_status {
 }
 
 table volunteer_events {
-  id int [primary key]
-  user_created_event_id int [note: 'fk']
+  id int [pk, ref: < volunteer_event_participation.volunteer_event_id]
+  user_created_event_id int
   title varchar[255] [not null]
   description text [not null]
   start_date timestamp
@@ -91,40 +93,38 @@ table volunteer_events {
 
 table volunteer_event_participation {
   id int [pk]
-  volunteer_event_id int [note: 'fk']
-  participated_user_id int [note: 'fk']
+  volunteer_event_id int
+  participated_user_id int
   current_participator int [default: 0, not null]
   avaliable_seat int [not null, default: 0]
   total_seat int [not null, default: 1]
   created_at timestamp
   updated_at timestamp
 }
-//
 
 
-// know ai
+//G1 knowo your AI
 enum course_types {
   ONLINE
   ONSITE
   ONLINEANDONSITE
 }
 
-
 table online_courses {
-  id int [primary key]
+  id int [pk]
   video_name varchar[100] [not null]
   video_description text [not null]
   duration_minutes varchar[10] [not null]
   video_order int [not null]
   video_file_path text [not null]
-  course_id int [note: 'fk', not null]
+  course_id int [not null]
   created_at timestamp
   updated_at timestamp
 }
 
 table onsites{
-  id int [primary key]
-  course_id int [note: 'fk']
+  id int [pk, ref: < onsite_enrollments.onsite_id]
+  course_id int
   event_venue text [not null]
   duration_hours varchar[5]
   event_datetime datetime [not null]
@@ -136,14 +136,14 @@ table onsites{
 }
 
 table onsite_enrollments {
-  id int [primary key]
-  onsite_id int [note: 'fk']
-  user_id int [primary key, note: 'for who wants to study onsite.']
-
+  id int [pk]
+  onsite_id int
+  user_id int [pk, note: 'for who wants to study onsite.']
 }
 
 table courses {
-  id int [primary key]
+  id int [pk, ref: < online_courses.course_id,
+    ref: < onsites.id]
   course_name varchar[100] [not null]
   course_description text [not null]
   course_type course_types [not null]
@@ -153,39 +153,33 @@ table courses {
 }
 
 
-// added eventAdmin, event, bookmark
-table eventAdmin{
-  id int [primary key]
-  name varchar[25]
-  email varchar[255]
-}
+//G3 event hub
 
 table event {
-  id int [primary key]
+  id int [pk]
   title varchar[50]
   description varchar[255]
   date date
   time timestamp
   location text
   organizerEmail varchar[255]
-  postedByAdminId int [note: 'fk']
+  postedByAdminId int [note: "all dept will have admin"]
 }
 
 table bookmark {
-  userId int [note: 'fk', primary key]
-  eventId int [note: 'fk', primary key]
+  userId int [pk, ref: < users.id]
+  eventId int [pk, ref: < event.id]
   createdAt time
 }
 
 
-// add healthcare
-
+//G12 healthcare
 Table patients {
-  patient_id varchar [pk]
-  name varchar(200)
-  phone varchar(20)
-  email varchar(255)
-  address text
+  patient_id varchar [pk, ref: - users.id]
+  first_name varchar[25] [ref: - users.first_name]
+  last_name varchar[25] [ref: - users.last_name]
+  email varchar[255] [ref: - users.email]
+  address text [ref: - users.address]
   emergency_contact varchar(200)
   finance_id varchar(100)
   housing_id varchar(100)
@@ -215,7 +209,7 @@ Table beds {
   bed_number varchar(20)
   bed_type varchar(50)
   status varchar(20)
-  patient_id varchar [ref: > patients.patient_id]
+  patient_id varchar [ref: - patients.patient_id]
   admission_date timestamp
   finance_billing_id varchar(100)
   sos_priority integer
@@ -223,7 +217,7 @@ Table beds {
 
 Table appointments {
   appointment_id varchar [pk]
-  patient_id varchar [ref: > patients.patient_id]
+  patient_id varchar [ref: - patients.patient_id]
   facility_id varchar [ref: > facilities.facility_id]
   user_id int [ref: > users.id]
   appointment_datetime timestamp
@@ -237,8 +231,8 @@ Table appointments {
 
 Table prescriptions {
   prescription_id varchar [pk]
-  patient_id varchar [ref: > patients.patient_id]
-  user_id int [ref: > users.id]
+  patient_id varchar [ref: - patients.patient_id]
+  user_id int [ref: - users.id]
   facility_id varchar [ref: > facilities.facility_id]
   medication_name varchar(255)
   quantity integer
@@ -262,9 +256,11 @@ Table ambulances {
   created_at timestamp
 }
 
+
+//G13 emergency
 Table emergency_calls {
   emergency_id varchar [pk]
-  patient_id varchar [ref: > patients.patient_id]
+  patient_id varchar [ref: - patients.patient_id]
   caller_phone varchar(20)
   emergency_type varchar(50)
   severity varchar(20)
@@ -280,7 +276,7 @@ Table emergency_calls {
 
 Table payments {
   payment_id varchar [pk]
-  patient_id varchar [ref: > patients.patient_id]
+  patient_id varchar [ref: - patients.patient_id]
   facility_id varchar [ref: > facilities.facility_id]
   service_type varchar(50)
   service_id varchar
@@ -308,38 +304,4 @@ Table team_integrations {
   additional_data json
   created_at timestamp
 }
-//
 
-Ref: "event"."postedByAdminId" < "eventAdmin"."id"
-
-Ref: "bookmark"."userId" < "users"."id" 
-
-Ref: "bookmark"."eventId" < "event"."id"
-
-Ref: "users"."id" < "users_departments"."user_id"
-
-Ref: "departments"."id" < "users_departments"."department_id"
-
-Ref: "users"."id" - "freecycle_posts"."user_id"
-
-Ref: "categories"."id" < "freecycle_posts_categories"."category_id"
-
-Ref: "freecycle_posts"."department_id" - "departments"."id"
-  
-Ref: "freecycle_posts"."id" < "freecycle_posts_categories"."post_id"
-
-Ref: "users"."id" < "volunteer_events"."user_created_event_id"
-
-Ref: "volunteer_events"."id" < "volunteer_event_participation"."volunteer_event_id"
-
-Ref: "users"."id" < "volunteer_event_participation"."participated_user_id"
-
-Ref: "courses"."id" < "online_courses"."course_id"
-
-Ref: "courses"."id" < "onsites"."id"
-
-Ref: "onsites"."id" < "onsite_enrollments"."onsite_id"
-
-Ref: "users"."id" < "onsite_enrollments"."user_id"
-
-Ref: "users"."role_id" - "roles"."id"
