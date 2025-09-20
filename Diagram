@@ -1,6 +1,6 @@
-Enum roles {
-  USER
-  ADMIN
+Table roles {
+  id int [primary key]
+  role_name varchar[50]
 }
 
 Enum genders {
@@ -8,7 +8,7 @@ Enum genders {
   FEMALE
 }
 
-Table department {
+Table departments {
   id int [primary key]
   department_name varchar[255]
   created_at timestamp
@@ -22,7 +22,7 @@ Table users {
   middle_name varchar[100]
   last_name varchar[100]
   gender genders
-  role roles
+  role_id int [note: 'fk']
   password_hash varchar[255] [not null]
   email varchar[255] [unique, not null]
   phone varchar[15] [unique, not null]
@@ -177,6 +177,139 @@ table bookmark {
   createdAt time
 }
 
+
+// add healthcare
+
+Table patients {
+  patient_id varchar [pk]
+  name varchar(200)
+  phone varchar(20)
+  email varchar(255)
+  address text
+  emergency_contact varchar(200)
+  finance_id varchar(100)
+  housing_id varchar(100)
+  sos_id varchar(100)
+  created_at timestamp
+}
+
+Table facilities {
+  facility_id varchar [pk]
+  name varchar(255)
+  type varchar(50)
+  address text
+  phone varchar(20)
+  latitude decimal(10,8)
+  longitude decimal(11,8)
+  emergency_services boolean
+  finance_merchant_id varchar(100)
+  housing_zone varchar(100)
+  sos_code varchar(50)
+  department_id int [ref: > departments.id]
+  created_at timestamp
+}
+
+Table beds {
+  bed_id varchar [pk]
+  facility_id varchar [ref: > facilities.facility_id]
+  bed_number varchar(20)
+  bed_type varchar(50)
+  status varchar(20)
+  patient_id varchar [ref: > patients.patient_id]
+  admission_date timestamp
+  finance_billing_id varchar(100)
+  sos_priority integer
+}
+
+Table appointments {
+  appointment_id varchar [pk]
+  patient_id varchar [ref: > patients.patient_id]
+  facility_id varchar [ref: > facilities.facility_id]
+  user_id int [ref: > users.id]
+  appointment_datetime timestamp
+  type varchar(50)
+  status varchar(20)
+  finance_payment_id varchar(100)
+  housing_transport_id varchar(100)
+  sos_emergency boolean
+  created_at timestamp
+}
+
+Table prescriptions {
+  prescription_id varchar [pk]
+  patient_id varchar [ref: > patients.patient_id]
+  user_id int [ref: > users.id]
+  facility_id varchar [ref: > facilities.facility_id]
+  medication_name varchar(255)
+  quantity integer
+  status varchar(20)
+  finance_payment_id varchar(100)
+  housing_delivery_id varchar(100)
+  sos_critical boolean
+  created_at timestamp
+}
+
+Table ambulances {
+  ambulance_id varchar [pk]
+  vehicle_number varchar(50)
+  status varchar(20)
+  current_latitude decimal(10,8)
+  current_longitude decimal(11,8)
+  base_facility_id varchar [ref: > facilities.facility_id]
+  finance_rate decimal(10,2)
+  housing_coverage_zones json
+  sos_priority integer
+  created_at timestamp
+}
+
+Table emergency_calls {
+  emergency_id varchar [pk]
+  patient_id varchar [ref: > patients.patient_id]
+  caller_phone varchar(20)
+  emergency_type varchar(50)
+  severity varchar(20)
+  location_address text
+  ambulance_id varchar [ref: > ambulances.ambulance_id]
+  facility_id varchar [ref: > facilities.facility_id]
+  status varchar(20)
+  finance_billing_id varchar(100)
+  housing_unit varchar(100)
+  sos_incident_id varchar(100)
+  created_at timestamp
+}
+
+Table payments {
+  payment_id varchar [pk]
+  patient_id varchar [ref: > patients.patient_id]
+  facility_id varchar [ref: > facilities.facility_id]
+  service_type varchar(50)
+  service_id varchar
+  amount decimal(10,2)
+  currency varchar(3)
+  payment_method varchar(50)
+  insurance_coverage decimal(10,2)
+  patient_copay decimal(10,2)
+  status varchar(20)
+  payment_date timestamp
+  finance_transaction_id varchar(100)
+  insurance_claim_id varchar(100)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table team_integrations {
+  integration_id varchar [pk]
+  team_name varchar(50)
+  healthcare_table varchar(50)
+  healthcare_id varchar
+  external_id varchar(100)
+  data_type varchar(50)
+  status varchar(20)
+  additional_data json
+  created_at timestamp
+}
+//
+
 Ref: "event"."postedByAdminId" < "eventAdmin"."id"
 
 Ref: "bookmark"."userId" < "users"."id" 
@@ -185,13 +318,13 @@ Ref: "bookmark"."eventId" < "event"."id"
 
 Ref: "users"."id" < "users_departments"."user_id"
 
-Ref: "department"."id" < "users_departments"."department_id"
+Ref: "departments"."id" < "users_departments"."department_id"
 
 Ref: "users"."id" - "freecycle_posts"."user_id"
 
 Ref: "categories"."id" < "freecycle_posts_categories"."category_id"
 
-Ref: "freecycle_posts"."department_id" - "department"."id"
+Ref: "freecycle_posts"."department_id" - "departments"."id"
   
 Ref: "freecycle_posts"."id" < "freecycle_posts_categories"."post_id"
 
@@ -208,3 +341,5 @@ Ref: "courses"."id" < "onsites"."id"
 Ref: "onsites"."id" < "onsite_enrollments"."onsite_id"
 
 Ref: "users"."id" < "onsite_enrollments"."user_id"
+
+Ref: "users"."role_id" - "roles"."id"
