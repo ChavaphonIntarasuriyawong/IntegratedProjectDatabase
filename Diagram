@@ -1,6 +1,7 @@
+// user features
 Table roles {
   id int [pk]
-  role_name varchar[50]
+  role_name varchar(50)
 }
 
 Enum genders {
@@ -11,14 +12,14 @@ Enum genders {
 
 Table departments {
   id int [pk, ref: < users_departments.department_id]
-  department_name varchar[255]
+  department_name varchar(255)
   created_at timestamp
   updated_at timestamp
 }
 
 Table users {
-  id int [pk, ref: <> users_departments.user_id, 
-  ref: - freecycle_posts.user_id, 
+  id int [pk, ref: <> users_departments.user_id,
+  ref: - freecycle_posts.user_id,
   ref: < volunteer_events.user_created_event_id,
   ref: < volunteer_event_participation.participated_user_id,
   ref: < onsite_enrollments.user_id,
@@ -29,35 +30,34 @@ Table users {
   ref: < users_contacts.user_id,
   ref: < users_contacts.contact_user_id]
 
-  username varchar[25]
-  first_name varchar[255]
-  middle_name varchar[255]
-  last_name varchar[255]
+  username varchar(25)
+  first_name varchar(255)
+  middle_name varchar(255)
+  last_name varchar(255)
   gender genders
   role_id int [ref: - roles.id]
-  password_hash varchar[256] [not null]
-  email varchar[255] [unique]
-  phone varchar[15] [unique]
+  password_hash varchar(256) [not null]
+  email varchar(255) [unique]
+  phone varchar(15) [unique]
   address text [not null]
   birth_date timestamp [not null]
   created_at timestamp
   updated_at timestamp
 }
 
-table users_departments {
+Table users_departments {
   user_id int [pk]
   department_id int [pk]
 }
 
-
-//G4 freecycle
+// G4 Freecycle
 Table freecycle_posts {
   id int [pk, ref: < freecycle_posts_categories.post_id]
-  item_name varchar[100] [not null]
+  item_name varchar(100) [not null]
   photo_url text [not null]
   description text [not null]
-  user_id int [note: 'CONSTRAINT', null]
-  department_id int [note: 'CONSTRAINT', null, ref: - departments.id]
+  user_id int
+  department_id int [ref: - departments.id]
   is_given boolean [default: false]
   created_at timestamp
   updated_at timestamp
@@ -65,7 +65,7 @@ Table freecycle_posts {
 
 Table freecycle_categories {
   id int [pk, ref: < freecycle_posts_categories.category_id]
-  category_name varchar[100] [note: 'default: furniture, electronic, etc.']
+  category_name varchar(100)
   created_at timestamp
   updated_at timestamp
 }
@@ -73,11 +73,9 @@ Table freecycle_categories {
 Table freecycle_posts_categories {
   post_id int [pk]
   category_id int [pk]
-  
 }
 
-
-//G6 volunteer
+// G6 Volunteer
 Enum volunteer_event_status {
   DRAFT
   PENDING
@@ -85,21 +83,21 @@ Enum volunteer_event_status {
   REJECTED
 }
 
-table volunteer_events {
+Table volunteer_events {
   id int [pk, ref: < volunteer_event_participation.volunteer_event_id]
   user_created_event_id int
-  title varchar[255] [not null]
+  title varchar(255) [not null]
   description text [not null]
   start_date timestamp
   end_date timestamp
   register_deadline timestamp
   location text
-  status volunteer_event_status [note: 'default: DRAFT']
+  status volunteer_event_status
   created_at timestamp
   updated_at timestamp
 }
 
-table volunteer_event_participation {
+Table volunteer_event_participation {
   id int [pk]
   volunteer_event_id int
   participated_user_id int
@@ -110,17 +108,16 @@ table volunteer_event_participation {
   updated_at timestamp
 }
 
-
-//G1 knowo your AI
-enum course_types {
+// G1 Know Ai Courses
+Enum course_types {
   ONLINE
   ONSITE
   ONLINE_AND_ONSITE
 }
 
-table online_courses {
+Table online_courses {
   id int [pk]
-  video_name varchar[100] [not null]
+  video_name varchar(100) [not null]
   video_description text [not null]
   duration_minutes decimal [not null]
   video_order int [not null]
@@ -130,56 +127,54 @@ table online_courses {
   updated_at timestamp
 }
 
-table onsites{
+Table onsites {
   id int [pk, ref: < onsite_enrollments.onsite_id]
   course_id int
   event_venue text [not null]
   duration_hours decimal
-  event_datetime datetime [not null]
-  registration_deadline datetime [not null]
+  event_datetime timestamp [not null]
+  registration_deadline timestamp [not null]
   avaliable_seat int [not null, default: 0]
   total_seat int [not null, default: 1]
   created_at timestamp
   updated_at timestamp
 }
 
-table onsite_enrollments {
+Table onsite_enrollments {
   id int [pk]
   onsite_id int
-  user_id int [pk, note: 'for who wants to study onsite.']
+  user_id int [pk]
 }
 
-table courses {
+Table courses {
   id int [pk, ref: < online_courses.course_id,
     ref: < onsites.id]
-  course_name varchar[255] [not null]
+  course_name varchar(255) [not null]
   course_description text [not null]
   course_type course_types [not null]
-  cover_image text [note: 'url', not null]
+  cover_image text [not null]
   created_at timestamp
   updated_at timestamp
 }
 
-
-//G3 event hub
-table event {
+// G3 Event Hub
+Table event {
   id int [pk]
-  title varchar[50]
-  description varchar[255]
+  title varchar(50)
+  description varchar(255)
   date timestamp
   location text
-  organizerEmail varchar[255]
-  postedByAdminId int [note: "all dept will have admin"]
+  organizerEmail varchar(255)
+  postedByAdminId int
 }
 
-table bookmark {
+Table bookmark {
   userId int [pk, ref: < users.id]
   eventId int [pk, ref: < event.id]
   createdAt timestamp
 }
 
-
-//G12 healthcare
+// G12 Healthcare
 Table patients {
   patient_id int [pk]
   user_id int [ref: - users.id]
@@ -260,7 +255,7 @@ Table ambulances {
 }
 
 Table emergency_calls {
-  emergency_id int
+  emergency_id int [pk]
   patient_id int [ref: - patients.patient_id]
   caller_phone varchar(20)
   emergency_type varchar(50)
@@ -306,54 +301,53 @@ Table team_integrations {
   created_at timestamp
 }
 
-
-//G11 financial
-enum wallet_type {
+// G11 Financial
+Enum wallet_type {
   individual
   organization
 }
 
-enum wallet_status {
+Enum wallet_status {
   active
   suspended
 }
 
-table wallets {
+Table wallets {
   wallet_id int [pk]
   owner_id int [unique, ref: - users.id]
   wallet_type wallet_type
-  organization_type varchar[100]
+  organization_type varchar(100)
   balance decimal [default: 0.0]
   status wallet_status
   created_at timestamp
   updated_at timestamp
 }
 
-enum transaction_type {
+Enum transaction_type {
   top_up
   transfer_in
   transfere_out
   transfer_to_service
 }
 
-enum target_services {
+Enum target_services {
   insurance
   metro
   null
 }
 
-table wallet_transactions {
+Table wallet_transactions {
   transaction_id int [pk]
   wallet_id int [ref: > wallets.wallet_id]
   transaction_type transaction_type
-  amount fecimal
-  target_wallet_id int [null]
-  target_service target_service
-  description varchar[255]
+  amount decimal
+  target_wallet_id int
+  target_service target_services
+  description varchar(255)
   created_at timestamp
 }
 
-table insurance_cards {
+Table insurance_cards {
   card_id int [pk]
   citizen_id int [ref: - users.id]
   balance decimal [default: 0.0]
@@ -363,7 +357,7 @@ table insurance_cards {
   updated_at timestamp
 }
 
-table metro_cards {
+Table metro_cards {
   card_id int [pk]
   citizen_id int [ref: - users.id]
   balance decimal [default: 0.0]
@@ -373,56 +367,53 @@ table metro_cards {
   updated_at timestamp
 }
 
-enum card_transaction_type {
+Enum card_transaction_type {
   top_up
   charge
   refund
 }
 
-enum transaction_category {
+Enum transaction_category {
   insurance
   metro
 }
 
-table transaction {
+Table transaction {
   transaction_id int [pk]
   card_id int [ref: > insurance_cards.card_id]
   transaction_type card_transaction_type
   transaction_category transaction_category
-  reference varchar[50] [note: "health team reference/transport team data"]
+  reference varchar(50)
   amount decimal [default: 0.0]
-  description varchar[255]
+  description varchar(255)
   created_at timestamp
 }
 
-
-//G10 traffic REAL-TIME
-table traffic_light {
+// G10 Traffic
+Table traffic_light {
   light_id int [pk]
-  latitude varchar[100]
-  longitude varchar[100]
-  intersection_id int []
-  road_id int []
-  status boolean [note: "1 = online | 0 = offline"]
-  current_color int [note: "0 = red | 1 = yellow | 2 = green"]
+  latitude varchar(100)
+  longitude varchar(100)
+  status boolean
+  current_color int
   density_level int
   auto_mode boolean
   last_updated timestamp
 }
 
-table intersection {
+Table intersection {
   intersection_id int [pk]
-  latitude varchar[100]
-  longitude varchar[100]
+  latitude varchar(100)
+  longitude varchar(100)
 }
 
-table light_request {
+Table light_request {
   request_id int [pk]
   light_id int [ref: > traffic_light.light_id]
   request_time timestamp
 }
 
-table road {
+Table road {
   road_id int [pk]
   light_id int [ref: < traffic_light.light_id]
   intersection_id_start int [ref: > intersection.intersection_id]
@@ -430,32 +421,31 @@ table road {
   length int
 }
 
-enum traffic_emergency_status {
+Enum traffic_emergency_status {
   active
   resolve
 }
 
-table traffic_emergency_request {
+Table traffic_emergency_request {
   emergency_request int [pk]
   user_id int [ref: > users.id]
-  accident_latitude varchar[100]
-  accident_longitude varchar[100]
-  destination_hospital varchar[255]
+  accident_latitude varchar(100)
+  accident_longitude varchar(100)
+  destination_hospital varchar(255)
   status traffic_emergency_status
   ambulance_id int [ref: <> vehicle.vehicle_id]
 }
 
-table vehicle {
+Table vehicle {
   vehicle_id int [pk]
   user_id int [ref: > users.id]
-  current_latitude varchar[100]
-  current_longitude varchar[100]
-  vehicle_plate varchar[10]
+  current_latitude varchar(100)
+  current_longitude varchar(100)
+  vehicle_plate varchar(10)
 }
 
-
-//G13 emergency report
-enum level {
+// G13 Emergency Reports
+Enum level {
   near_miss
   minor
   moderate
@@ -463,76 +453,76 @@ enum level {
   lethal
 }
 
-enum report_status {
+Enum report_status {
   pending
   verified
   resolved
 }
 
-enum report_category {
+Enum report_category {
   traffic
   disaster
   crime
 }
 
 Table reports {
-  report_id integer [pk, not null, increment, ref: - alerts.report_id]
-  user_id integer [not null]
+  report_id int [pk, not null]
+  user_id int [not null]
   image varchar(255) [not null]
   description varchar(255) [not null]
   latitude varchar(255) [not null]
   longitude varchar(255) [not null]
   level level
-  status report_status [default: 'pending']
+  status report_status
   category report_category
-  updated_at timestamp [default: `now()` , note: 'TODO: Add ON UPDATE ON UPDATE CURRENT_TIMESTAMP']
-  created_at timestamp [default: `now()`]
+  updated_at timestamp
+  created_at timestamp
 }
 
 Table emergency_contacts {
-  contact_id integer [pk, not null, increment]
-  user_id  integer [not null]
+  contact_id int [pk, not null]
+  user_id int [not null]
   contact_name varchar(255) [not null]
   phone varchar(10)
 }
 
 Table alerts {
-  alert_id integer [pk, not null, increment]
-  report_id integer [not null]
+  alert_id int [pk, not null]
+  report_id int [not null]
   message text [not null]
   area varchar(255)
-  sent_at timestamp [default: `now()`]
+  sent_at timestamp
 }
 
 Table users_contacts {
-  contact_id integer [pk, not null, increment]
-  user_id integer [not null]
-  contact_user_id integer [not null]
+  contact_id int [pk, not null]
+  user_id int [not null]
+  contact_user_id int [not null]
 }
 
 Table messages {
-  message_id integer [pk, not null, increment]
-  sender_id integer [not null]
-  recipient_id integer [not null]
+  message_id int [pk, not null]
+  sender_id int [not null]
+  recipient_id int [not null]
   message_text text
-  sent_at timestamp [default: `now()`]
-  conversation_id integer [not null]
+  sent_at timestamp
+  conversation_id int [not null]
 }
 
 Table conversations {
-  conversation_id integer [pk, not null, increment, ref: < messages.conversation_id]
+  conversation_id int [pk, not null, ref: < messages.conversation_id]
   conversation_name varchar(255)
 }
 
-//G5 air quality
-enum categories {
+// G5 Air Quality
+Enum categories {
   GOOD
   MODERATE
   UNHEALTHY
   HAZARDDOUS
 }
 
-table air_quality {
+Table air_quality {
   id int [pk]
   location text [not null]
   aqi decimal
@@ -546,15 +536,14 @@ table air_quality {
   created_at timestamp
 }
 
-table weather_context {
+Table weather_context {
   id int [pk]
   rain_forecast decimal
   created_at timestamp
 }
 
-table traffic_context {
+Table traffic_context {
   id int [pk]
   congestion_level decimal
   created_at timestamp
 }
-
