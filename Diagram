@@ -50,7 +50,7 @@ Table freecycle_posts {
   description text [not null]
   user_id int [note: 'CONSTRAINT', null]
   department_id int [note: 'CONSTRAINT', null, ref: - departments.id]
-  isGiven boolean [note: 'default: false']
+  isGiven boolean [default: false]
   created_at timestamp
   updated_at timestamp
 }
@@ -156,8 +156,9 @@ table courses {
 //G3 event hub
 table event_admin{
   id int [pk]
-  name varchar[25]
-  email varchar[255]
+  first_name varchar[25] [ref: - users.first_name]
+  last_name varchar[25] [ref: - users.last_name]
+  email varchar[255] [ref: - users.email]
 }
 
 table event {
@@ -168,7 +169,7 @@ table event {
   time timestamp
   location text
   organizerEmail varchar[255]
-  postedByAdminId int [ref: < event_admin.id]
+  postedByAdminId int [ref: - event_admin.id]
 }
 
 table bookmark {
@@ -181,10 +182,10 @@ table bookmark {
 //G12 healthcare
 Table patients {
   patient_id varchar [pk]
-  name varchar(200)
-  phone varchar(20)
-  email varchar(255)
-  address text
+  first_name varchar[25] [ref: - users.first_name]
+  last_name varchar[25] [ref: - users.last_name]
+  email varchar[255] [ref: - users.email]
+  address text [ref: - users.address]
   emergency_contact varchar(200)
   finance_id varchar(100)
   housing_id varchar(100)
@@ -214,7 +215,7 @@ Table beds {
   bed_number varchar(20)
   bed_type varchar(50)
   status varchar(20)
-  patient_id varchar [ref: > patients.patient_id]
+  patient_id varchar [ref: - patients.patient_id]
   admission_date timestamp
   finance_billing_id varchar(100)
   sos_priority integer
@@ -222,7 +223,7 @@ Table beds {
 
 Table appointments {
   appointment_id varchar [pk]
-  patient_id varchar [ref: > patients.patient_id]
+  patient_id varchar [ref: - patients.patient_id]
   facility_id varchar [ref: > facilities.facility_id]
   user_id int [ref: > users.id]
   appointment_datetime timestamp
@@ -236,8 +237,8 @@ Table appointments {
 
 Table prescriptions {
   prescription_id varchar [pk]
-  patient_id varchar [ref: > patients.patient_id]
-  user_id int [ref: > users.id]
+  patient_id varchar [ref: - patients.patient_id]
+  user_id int [ref: - users.id]
   facility_id varchar [ref: > facilities.facility_id]
   medication_name varchar(255)
   quantity integer
@@ -265,7 +266,7 @@ Table ambulances {
 //G13 emergency
 Table emergency_calls {
   emergency_id varchar [pk]
-  patient_id varchar [ref: > patients.patient_id]
+  patient_id varchar [ref: - patients.patient_id]
   caller_phone varchar(20)
   emergency_type varchar(50)
   severity varchar(20)
@@ -281,7 +282,7 @@ Table emergency_calls {
 
 Table payments {
   payment_id varchar [pk]
-  patient_id varchar [ref: > patients.patient_id]
+  patient_id varchar [ref: - patients.patient_id]
   facility_id varchar [ref: > facilities.facility_id]
   service_type varchar(50)
   service_id varchar
@@ -309,3 +310,4 @@ Table team_integrations {
   additional_data json
   created_at timestamp
 }
+
