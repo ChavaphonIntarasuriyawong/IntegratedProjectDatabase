@@ -154,6 +154,7 @@ table courses {
 
 
 //G3 event hub
+
 table event {
   id int [pk]
   title varchar[50]
@@ -162,6 +163,7 @@ table event {
   time timestamp
   location text
   organizerEmail varchar[255]
+  postedByAdminId int [note: "all dept will have admin"]
 }
 
 table bookmark {
@@ -173,7 +175,8 @@ table bookmark {
 
 //G12 healthcare
 Table patients {
-  patient_id varchar [pk, ref: - users.id]
+  patient_id varchar [pk]
+  user_id varchar [ref: - users.id]
   emergency_contact varchar(200)
   finance_id varchar(100)
   housing_id varchar(100)
