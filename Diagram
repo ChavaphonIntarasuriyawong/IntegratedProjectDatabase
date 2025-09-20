@@ -154,13 +154,6 @@ table courses {
 
 
 //G3 event hub
-table event_admin{
-  id int [pk]
-  first_name varchar[25] [ref: - users.first_name]
-  last_name varchar[25] [ref: - users.last_name]
-  email varchar[255] [ref: - users.email]
-}
-
 table event {
   id int [pk]
   title varchar[50]
@@ -169,7 +162,6 @@ table event {
   time timestamp
   location text
   organizerEmail varchar[255]
-  postedByAdminId int [ref: - event_admin.id]
 }
 
 table bookmark {
@@ -181,11 +173,7 @@ table bookmark {
 
 //G12 healthcare
 Table patients {
-  patient_id varchar [pk]
-  first_name varchar[25] [ref: - users.first_name]
-  last_name varchar[25] [ref: - users.last_name]
-  email varchar[255] [ref: - users.email]
-  address text [ref: - users.address]
+  patient_id varchar [pk, ref: - users.id]
   emergency_contact varchar(200)
   finance_id varchar(100)
   housing_id varchar(100)
