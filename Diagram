@@ -6,6 +6,7 @@ Table roles {
 Enum genders {
   MALE
   FEMALE
+  NONE
 }
 
 Table departments {
@@ -16,20 +17,27 @@ Table departments {
 }
 
 Table users {
-  id int [pk, ref: < users_departments.user_id, 
+  id int [pk, ref: <> users_departments.user_id, 
   ref: - freecycle_posts.user_id, 
   ref: < volunteer_events.user_created_event_id,
   ref: < volunteer_event_participation.participated_user_id,
-  ref: < onsite_enrollments.user_id]
+  ref: < onsite_enrollments.user_id,
+  ref: - reports.user_id,
+  ref: < emergency_contacts.user_id,
+  ref: < messages.sender_id,
+  ref: < messages.recipient_id,
+  ref: < users_contacts.user_id,
+  ref: < users_contacts.contact_user_id]
+
   username varchar[25]
-  first_name varchar[100]
-  middle_name varchar[100]
-  last_name varchar[100]
+  first_name varchar[255]
+  middle_name varchar[255]
+  last_name varchar[255]
   gender genders
   role_id int [ref: - roles.id]
-  password_hash varchar[255] [not null]
-  email varchar[255] [unique, not null]
-  phone varchar[15] [unique, not null]
+  password_hash varchar[256] [not null]
+  email varchar[255] [unique]
+  phone varchar[15] [unique]
   address text [not null]
   birth_date datetime [not null]
   created_at timestamp
@@ -50,12 +58,12 @@ Table freecycle_posts {
   description text [not null]
   user_id int [note: 'CONSTRAINT', null]
   department_id int [note: 'CONSTRAINT', null, ref: - departments.id]
-  isGiven boolean [default: false]
+  is_given boolean [default: false]
   created_at timestamp
   updated_at timestamp
 }
 
-Table categories {
+Table freecycle_categories {
   id int [pk, ref: < freecycle_posts_categories.category_id]
   category_name varchar[100] [note: 'default: furniture, electronic, etc.']
   created_at timestamp
@@ -84,7 +92,7 @@ table volunteer_events {
   description text [not null]
   start_date timestamp
   end_date timestamp
-  register_deadline datetime
+  register_deadline timestamp
   location text
   status volunteer_event_status [note: 'default: DRAFT']
   created_at timestamp
@@ -107,14 +115,14 @@ table volunteer_event_participation {
 enum course_types {
   ONLINE
   ONSITE
-  ONLINEANDONSITE
+  ONLINE_AND_ONSITE
 }
 
 table online_courses {
   id int [pk]
   video_name varchar[100] [not null]
   video_description text [not null]
-  duration_minutes varchar[10] [not null]
+  duration_minutes decimal [not null]
   video_order int [not null]
   video_file_path text [not null]
   course_id int [not null]
@@ -126,7 +134,7 @@ table onsites{
   id int [pk, ref: < onsite_enrollments.onsite_id]
   course_id int
   event_venue text [not null]
-  duration_hours varchar[5]
+  duration_hours decimal
   event_datetime datetime [not null]
   registration_deadline datetime [not null]
   avaliable_seat int [not null, default: 0]
@@ -144,7 +152,7 @@ table onsite_enrollments {
 table courses {
   id int [pk, ref: < online_courses.course_id,
     ref: < onsites.id]
-  course_name varchar[100] [not null]
+  course_name varchar[255] [not null]
   course_description text [not null]
   course_type course_types [not null]
   cover_image text [note: 'url', not null]
@@ -154,13 +162,11 @@ table courses {
 
 
 //G3 event hub
-
 table event {
   id int [pk]
   title varchar[50]
   description varchar[255]
-  date date
-  time timestamp
+  date timestamp
   location text
   organizerEmail varchar[255]
   postedByAdminId int [note: "all dept will have admin"]
@@ -169,7 +175,7 @@ table event {
 table bookmark {
   userId int [pk, ref: < users.id]
   eventId int [pk, ref: < event.id]
-  createdAt time
+  createdAt timestamp
 }
 
 
@@ -253,8 +259,6 @@ Table ambulances {
   created_at timestamp
 }
 
-
-//G13 emergency
 Table emergency_calls {
   emergency_id int
   patient_id int [ref: - patients.patient_id]
@@ -375,22 +379,147 @@ enum card_transaction_type {
   refund
 }
 
-table insurance_transactions {
+enum transaction_category {
+  insurance
+  metro
+}
+
+table transaction {
   transaction_id int [pk]
   card_id int [ref: > insurance_cards.card_id]
   transaction_type card_transaction_type
+  transaction_category transaction_category
+  reference varchar[50] [note: "health team reference/transport team data"]
   amount decimal [default: 0.0]
   description varchar[255]
-  service_reference varchar[50] [note: "health team reference"]
   created_at timestamp
 }
 
-table metro_transactions {
-  transaction_id int [pk]
-  card_id int [ref: > insurance_cards.card_id]
-  transaction_type card_transaction_type
-  amount decimal [default: 0.0]
-  description varchar[255]
-  route_info varchar[100] [note: "transport team data"]
-  created_at timestamp
+
+//G10 traffic REAL-TIME
+table traffic_light {
+  light_id int [pk]
+  latitude varchar[100]
+  longitude varchar[100]
+  intersection_id int []
+  road_id int []
+  status boolean [note: "1 = online | 0 = offline"]
+  current_color int [note: "0 = red | 1 = yellow | 2 = green"]
+  density_level int
+  auto_mode boolean
+  last_updated timestamp
+}
+
+table intersection {
+  intersection_id int [pk]
+  latitude varchar[100]
+  longitude varchar[100]
+}
+
+table light_request {
+  request_id int [pk]
+  light_id int [ref: > traffic_light.light_id]
+  request_time timestamp
+}
+
+table road {
+  road_id int [pk]
+  light_id int [ref: < traffic_light.light_id]
+  intersection_id_start int [ref: > intersection.intersection_id]
+  intersection_id_end int [ref: > intersection.intersection_id]
+  length int
+}
+
+enum traffic_emergency_status {
+  active
+  resolve
+}
+
+table traffic_emergency_request {
+  emergency_request int [pk]
+  user_id int [ref: > users.id]
+  accident_latitude varchar[100]
+  accident_longitude varchar[100]
+  destination_hospital varchar[255]
+  status traffic_emergency_status
+  ambulance_id int [ref: <> vehicle.vehicle_id]
+}
+
+table vehicle {
+  vehicle_id int [pk]
+  user_id int [ref: > users.id]
+  current_latitude varchar[100]
+  current_longitude varchar[100]
+  vehicle_plate varchar[10]
+}
+
+
+//G13 emergency report
+enum level {
+  near_miss
+  minor
+  moderate
+  major
+  lethal
+}
+
+enum report_status {
+  pending
+  verified
+  resolved
+}
+
+enum report_category {
+  traffic
+  disaster
+  crime
+}
+
+Table reports {
+  report_id integer [pk, not null, increment, ref: - alerts.report_id]
+  user_id integer [not null]
+  image varchar(255) [not null]
+  description varchar(255) [not null]
+  latitude varchar(255) [not null]
+  longitude varchar(255) [not null]
+  level level
+  status report_status [default: 'pending']
+  category report_category
+  updated_at timestamp [default: `now()` , note: 'TODO: Add ON UPDATE ON UPDATE CURRENT_TIMESTAMP']
+  created_at timestamp [default: `now()`]
+}
+
+Table emergency_contacts {
+  contact_id integer [pk, not null, increment]
+  user_id  integer [not null]
+  contact_name varchar(255) [not null]
+  phone varchar(10)
+}
+
+Table alerts {
+  alert_id integer [pk, not null, increment]
+  report_id integer [not null]
+  message text [not null]
+  area varchar(255)
+  sent_at timestamp [default: `now()`]
+}
+
+Table users_contacts {
+  contact_id integer [pk, not null, increment]
+  user_id integer [not null]
+  contact_user_id integer [not null]
+}
+
+Table messages {
+  message_id integer [pk, not null, increment]
+  sender_id integer [not null]
+  recipient_id integer [not null]
+  message_text text
+  sent_at timestamp [default: `now()`]
+  conversation_id integer [not null]
+}
+
+Table conversations {
+  conversation_id integer [pk, not null, increment, ref: < messages.conversation_id]
+  conversation_name varchar(255)
 }
