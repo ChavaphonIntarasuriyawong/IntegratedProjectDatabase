@@ -547,3 +547,80 @@ Table traffic_context {
   congestion_level decimal
   created_at timestamp
 }
+
+//G8 transportation
+enum transportation_digital_card_status {
+  active
+  inactive
+}
+
+table digital_card {
+  card_id int [pk, increment]
+  user_id int [ref: > users.id]
+  status transportation_digital_card_status
+}
+
+enum transportation_card_transaction_status {
+  pending
+  confirmed
+  failed
+}
+
+table transportation_card_transaction {
+  transaction_id int [pk, increment]
+  card_id int [ref: > digital_card.card_id]
+  route_id int [ref: > route.route_id]
+  amount decimal
+  status transportation_card_transaction_status
+  timestamp timestamp
+}
+
+table transportation_vehicle_type {
+  type_id int [pk, increment]
+  type_name varchar(100)
+}
+
+enum transportation_vehicle_status {
+  active
+  maintenance
+}
+
+table transportation_vehicle {
+  vehicle_id int [pk, increment]
+  type_id int [ref: > transportation_vehicle_type.type_id]
+  route_id int [ref: > route.route_id]
+  current_latitude varchar(100)
+  current_longitude varchar(100)
+  status transportation_vehicle_status
+}
+
+table route {
+  route_id int [pk, increment]
+  route_name varchar(255)
+  type_id int [ref: < transportation_vehicle_type.type_id]
+}
+
+table stop {
+  stop_id int [pk, increment]
+  stop_name varchar(255)
+  stop_latitude varchar(100)
+  stop_longitude varchar(100)
+}
+
+table route_stop {
+  route_stop_id int [pk, increment]
+  route_id int [ref: > route.route_id]
+  stop_id int [ref: > stop.stop_id]
+  stop_order int
+  travel_time_to_next_stop int [note: "record in minutes"]
+}
+
+table transportation_user_request {
+  request_id int [pk, increment]
+  user_id int [ref: > users.id]
+  origin_stop_id int [ref: > stop.stop_id]
+  destinaion_stop_id int [ref: > stop.stop_id]
+  fastest_route_id int [ref: > route.route_id]
+  total_travel_time int [note: "record in minutes"]
+  timestamp timestamp
+}
