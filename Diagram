@@ -39,7 +39,7 @@ Table users {
   email varchar[255] [unique]
   phone varchar[15] [unique]
   address text [not null]
-  birth_date datetime [not null]
+  birth_date timestamp [not null]
   created_at timestamp
   updated_at timestamp
 }
@@ -523,3 +523,38 @@ Table conversations {
   conversation_id integer [pk, not null, increment, ref: < messages.conversation_id]
   conversation_name varchar(255)
 }
+
+//G5 air quality
+enum categories {
+  GOOD
+  MODERATE
+  UNHEALTHY
+  HAZARDDOUS
+}
+
+table air_quality {
+  id int [pk]
+  location text [not null]
+  aqi decimal
+  pm25 decimal
+  pm10 decimal
+  co decimal
+  no2 decimal
+  so2 decimal
+  o3 decimal
+  category categories
+  created_at timestamp
+}
+
+table weather_context {
+  id int [pk]
+  rain_forecast decimal
+  created_at timestamp
+}
+
+table traffic_context {
+  id int [pk]
+  congestion_level decimal
+  created_at timestamp
+}
+
