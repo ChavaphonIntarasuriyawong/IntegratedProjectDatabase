@@ -154,6 +154,7 @@ table courses {
 
 
 //G3 event hub
+
 table event {
   id int [pk]
   title varchar[50]
@@ -162,6 +163,7 @@ table event {
   time timestamp
   location text
   organizerEmail varchar[255]
+  postedByAdminId int [note: "all dept will have admin"]
 }
 
 table bookmark {
@@ -173,16 +175,17 @@ table bookmark {
 
 //G12 healthcare
 Table patients {
-  patient_id varchar [pk, ref: - users.id]
+  patient_id int [pk]
+  user_id int [ref: - users.id]
   emergency_contact varchar(200)
-  finance_id varchar(100)
-  housing_id varchar(100)
-  sos_id varchar(100)
+  finance_id int
+  housing_id int
+  sos_id int
   created_at timestamp
 }
 
 Table facilities {
-  facility_id varchar [pk]
+  facility_id int [pk]
   name varchar(255)
   type varchar(50)
   address text
@@ -190,7 +193,7 @@ Table facilities {
   latitude decimal(10,8)
   longitude decimal(11,8)
   emergency_services boolean
-  finance_merchant_id varchar(100)
+  finance_merchant_id int
   housing_zone varchar(100)
   sos_code varchar(50)
   department_id int [ref: > departments.id]
@@ -198,52 +201,52 @@ Table facilities {
 }
 
 Table beds {
-  bed_id varchar [pk]
-  facility_id varchar [ref: > facilities.facility_id]
+  bed_id int [pk]
+  facility_id int [ref: > facilities.facility_id]
   bed_number varchar(20)
   bed_type varchar(50)
   status varchar(20)
-  patient_id varchar [ref: - patients.patient_id]
+  patient_id int [ref: - patients.patient_id]
   admission_date timestamp
-  finance_billing_id varchar(100)
+  finance_billing_id int
   sos_priority integer
 }
 
 Table appointments {
-  appointment_id varchar [pk]
-  patient_id varchar [ref: - patients.patient_id]
-  facility_id varchar [ref: > facilities.facility_id]
+  appointment_id int [pk]
+  patient_id int [ref: - patients.patient_id]
+  facility_id int [ref: > facilities.facility_id]
   user_id int [ref: > users.id]
   appointment_datetime timestamp
   type varchar(50)
   status varchar(20)
-  finance_payment_id varchar(100)
-  housing_transport_id varchar(100)
+  finance_payment_id int
+  housing_transport_id int
   sos_emergency boolean
   created_at timestamp
 }
 
 Table prescriptions {
-  prescription_id varchar [pk]
-  patient_id varchar [ref: - patients.patient_id]
+  prescription_id int [pk]
+  patient_id int [ref: - patients.patient_id]
   user_id int [ref: - users.id]
-  facility_id varchar [ref: > facilities.facility_id]
+  facility_id int [ref: > facilities.facility_id]
   medication_name varchar(255)
   quantity integer
   status varchar(20)
-  finance_payment_id varchar(100)
-  housing_delivery_id varchar(100)
+  finance_payment_id int
+  housing_delivery_id int
   sos_critical boolean
   created_at timestamp
 }
 
 Table ambulances {
-  ambulance_id varchar [pk]
+  ambulance_id int [pk]
   vehicle_number varchar(50)
   status varchar(20)
   current_latitude decimal(10,8)
   current_longitude decimal(11,8)
-  base_facility_id varchar [ref: > facilities.facility_id]
+  base_facility_id int [ref: > facilities.facility_id]
   finance_rate decimal(10,2)
   housing_coverage_zones json
   sos_priority integer
@@ -253,27 +256,27 @@ Table ambulances {
 
 //G13 emergency
 Table emergency_calls {
-  emergency_id varchar [pk]
-  patient_id varchar [ref: - patients.patient_id]
+  emergency_id int
+  patient_id int [ref: - patients.patient_id]
   caller_phone varchar(20)
   emergency_type varchar(50)
   severity varchar(20)
   location_address text
-  ambulance_id varchar [ref: > ambulances.ambulance_id]
-  facility_id varchar [ref: > facilities.facility_id]
+  ambulance_id int [ref: > ambulances.ambulance_id]
+  facility_id int [ref: > facilities.facility_id]
   status varchar(20)
-  finance_billing_id varchar(100)
+  finance_billing_id int
   housing_unit varchar(100)
-  sos_incident_id varchar(100)
+  sos_incident_id int
   created_at timestamp
 }
 
 Table payments {
-  payment_id varchar [pk]
-  patient_id varchar [ref: - patients.patient_id]
-  facility_id varchar [ref: > facilities.facility_id]
+  payment_id int [pk]
+  patient_id int [ref: - patients.patient_id]
+  facility_id int [ref: > facilities.facility_id]
   service_type varchar(50)
-  service_id varchar
+  service_id int
   amount decimal(10,2)
   currency varchar(3)
   payment_method varchar(50)
@@ -281,14 +284,14 @@ Table payments {
   patient_copay decimal(10,2)
   status varchar(20)
   payment_date timestamp
-  finance_transaction_id varchar(100)
-  insurance_claim_id varchar(100)
+  finance_transaction_id int
+  insurance_claim_id int
   created_at timestamp
   updated_at timestamp
 }
 
 Table team_integrations {
-  integration_id varchar [pk]
+  integration_id int [pk]
   team_name varchar(50)
   healthcare_table varchar(50)
   healthcare_id varchar
@@ -299,3 +302,95 @@ Table team_integrations {
   created_at timestamp
 }
 
+
+//G11 financial
+enum wallet_type {
+  individual
+  organization
+}
+
+enum wallet_status {
+  active
+  suspended
+}
+
+table wallets {
+  wallet_id int [pk]
+  owner_id int [unique, ref: - users.id]
+  wallet_type wallet_type
+  organization_type varchar[100]
+  balance decimal [default: 0.0]
+  status wallet_status
+  created_at timestamp
+  updated_at timestamp
+}
+
+enum transaction_type {
+  top_up
+  transfer_in
+  transfere_out
+  transfer_to_service
+}
+
+enum target_services {
+  insurance
+  metro
+  null
+}
+
+table wallet_transactions {
+  transaction_id int [pk]
+  wallet_id int [ref: > wallets.wallet_id]
+  transaction_type transaction_type
+  amount fecimal
+  target_wallet_id int [null]
+  target_service target_service
+  description varchar[255]
+  created_at timestamp
+}
+
+table insurance_cards {
+  card_id int [pk]
+  citizen_id int [ref: - users.id]
+  balance decimal [default: 0.0]
+  card_number int [unique]
+  status wallet_status
+  created_at timestamp
+  updated_at timestamp
+}
+
+table metro_cards {
+  card_id int [pk]
+  citizen_id int [ref: - users.id]
+  balance decimal [default: 0.0]
+  card_number int [unique]
+  status wallet_status
+  created_at timestamp
+  updated_at timestamp
+}
+
+enum card_transaction_type {
+  top_up
+  charge
+  refund
+}
+
+table insurance_transactions {
+  transaction_id int [pk]
+  card_id int [ref: > insurance_cards.card_id]
+  transaction_type card_transaction_type
+  amount decimal [default: 0.0]
+  description varchar[255]
+  service_reference varchar[50] [ref: - appointments.type, note: "health team reference"]
+  created_at timestamp
+}
+
+table metro_transactions {
+  transaction_id int [pk]
+  card_id int [ref: > insurance_cards.card_id]
+  transaction_type card_transaction_type
+  amount decimal [default: 0.0]
+  description varchar[255]
+  route_info varchar[100] [note: "transport team data"]
+  created_at timestamp
+}
