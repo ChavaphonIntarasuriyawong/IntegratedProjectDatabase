@@ -6,7 +6,9 @@ Stores user roles within the system.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the role. |
+
 | `role_name` | `varchar(50)` | | The name of the role (e.g., 'Admin', 'User', 'Doctor', etc.). |
 
 ### Table: `departments`
@@ -24,6 +26,7 @@ The main table for storing user profile information.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the user. |
 | `username` | `varchar(25)` | | The user's chosen username. |
 | `first_name` | `varchar(255)` | | The user's first name. |
@@ -40,12 +43,15 @@ The main table for storing user profile information.
 | `updated_at` | `timestamp` | | Timestamp of the last update to the user profile. |
 
 ### Table: `users_departments`
+
 A junction table linking users to departments.
+
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
 | `user_id` | `int` | **Primary Key**, **Foreign Key** (`users.id`) | The identifier for the user. |
 | `department_id` | `int` | **Primary Key**, **Foreign Key** (`departments.id`) | The identifier for the department. |
+
 
 ***
 ## G1: Know AI Courses
@@ -56,6 +62,7 @@ Stores general information about available courses.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the course. |
 | `course_name` | `varchar(255)` | `NOT NULL` | The title of the course. |
 | `course_description` | `text` | `NOT NULL` | A detailed description of the course. |
@@ -108,11 +115,13 @@ Tracks user enrollments for onsite events.
 ## G3: Event Hub
 This group is for managing general events and user bookmarks.
 ***
+
 ### Table: `event`
 Stores details about events.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the event. |
 | `host_event_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user hosting the event. |
 | `title` | `varchar(255)` | | The title of the event. |
@@ -124,6 +133,7 @@ Stores details about events.
 | `location` | `text` | | The location of the event. |
 | `created_at` | `timestamp` | | Timestamp of record creation. |
 | `updated_at` | `timestamp` | | Timestamp of the last update. |
+
 
 ### Table: `bookmark`
 Allows users to save or bookmark events they are interested in.
@@ -138,11 +148,13 @@ Allows users to save or bookmark events they are interested in.
 ## G4: Freecycle
 This group facilitates a system for users to give away items for free.
 ***
+
 ### Table: `freecycle_posts`
 Stores posts created by users for items they are giving away.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the post. |
 | `item_name` | `varchar(100)` | `NOT NULL` | The name of the item being offered. |
 | `item_weight` | `decimal` | | The weight of the item. |
@@ -160,6 +172,7 @@ Stores categories for freecycle items (e.g., 'Furniture', 'Electronics').
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the category. |
 | `category_name`| `varchar(100)` | | The name of the category. |
 | `created_at` | `timestamp` | | Timestamp of when the category was created. |
@@ -173,6 +186,7 @@ A junction table linking freecycle posts to their respective categories.
 | `post_id` | `int` | **Primary Key**, **Foreign Key** (`freecycle_posts.id`) | The identifier for the freecycle post. |
 | `category_id` | `int` | **Primary Key**, **Foreign Key** (`freecycle_categories.id`) | The identifier for the category. |
 
+
 ***
 ## G5: Air Quality
 This group manages data related to air quality and environmental context.
@@ -182,6 +196,7 @@ Stores air quality index (AQI) and pollutant measurements for specific locations
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the air quality reading. |
 | `location` | `text` | `NOT NULL` | The location where the measurement was taken. |
 | `aqi` | `decimal` | | The overall Air Quality Index value. |
@@ -199,6 +214,7 @@ Stores weather-related data that can affect air quality.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the weather context record. |
 | `rain_forecast`| `decimal` | | The forecasted probability or amount of rain. |
 | `created_at` | `timestamp` | | Timestamp of when the record was created. |
@@ -208,6 +224,7 @@ Stores traffic data that can influence air quality.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the traffic context record. |
 | `congestion_level`| `decimal` | | A metric representing the level of traffic congestion. |
 | `created_at` | `timestamp` | | Timestamp of when the record was created. |
@@ -221,6 +238,7 @@ Stores information about volunteer opportunities.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the volunteer event. |
 | `user_created_event_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user who created the event. |
 | `title` | `varchar(255)` | `NOT NULL` | The title of the volunteer event. |
@@ -229,6 +247,7 @@ Stores information about volunteer opportunities.
 | `end_date` | `timestamp` | | The end date and time of the event. |
 | `register_deadline` | `timestamp` | | The deadline for registration. |
 | `location` | `text` | | The location of the event. |
+
 | `status` | `volunteer_event_status` (Enum) | | The status (`DRAFT`, `PENDING`, `APPROVED`). |
 | `created_at` | `timestamp` | | Timestamp of when the event was created. |
 | `updated_at` | `timestamp` | | Timestamp of the last update. |
@@ -238,6 +257,7 @@ Tracks user participation in volunteer events.
 
 | Field | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
+
 | `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the participation record. |
 | `volunteer_event_id` | `int` | **Foreign Key** (`volunteer_events.id`) | The ID of the volunteer event. |
 | `participated_user_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user participating. |
@@ -246,6 +266,7 @@ Tracks user participation in volunteer events.
 | `total_seat` | `int` | `NOT NULL`, `DEFAULT: 1` | The total number of spots. |
 | `created_at` | `timestamp` | | Timestamp of when the participation was recorded. |
 | `updated_at` | `timestamp` | | Timestamp of the last update. |
+
 
 ***
 ## G7: Power BI Report Management
@@ -437,7 +458,7 @@ Logs user requests for route planning.
 
 ***
 ## G9: Find Apartment
-This group manages apartment listings and related points of interest. 🏢
+This group manages apartment listings and related points of interest. 
 ***
 ### Table: `apartment`
 Stores basic information about apartments.
@@ -486,12 +507,82 @@ Stores information about specific Points of Interest.
 | `poi_longitude`| `decimal` | | The longitude coordinate of the POI. |
 | `category_id` | `int` | **Foreign Key** (`poi_categories.id`) | The category this POI belongs to. |
 
-***
+
+
+---
 ## G10: Traffic
-This group manages traffic control systems, intersections, and emergency requests. 🚦
-***
-### Table: `traffic_light`, `intersection`, `light_request`, `road`, `vehicle`, `traffic_emergency_request`
-(This section is unchanged from the previous version)
+
+This group manages traffic control systems, intersections, and emergency requests.
+
+---
+
+### Table: `traffic_light`
+Stores the state and properties of individual traffic lights.
+
+| Field | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `light_id` | `int` | **Primary Key** | Unique identifier for the traffic light. |
+| `latitude` | `varchar(100)` | | The latitude coordinate of the traffic light. |
+| `longitude` | `varchar(100)` | | The longitude coordinate of the traffic light. |
+| `status` | `boolean` | | The operational status (on/off). |
+| `current_color` | `int` | | The current color of the light (e.g., represented by an integer). |
+| `density_level` | `int` | | The level of traffic density detected. |
+| `auto_mode` | `boolean` | | A flag indicating if the light is in automatic mode. |
+| `last_updated` | `timestamp` | | Timestamp of the last status update. |
+
+### Table: `intersection`
+Stores the geographic locations of road intersections.
+
+| Field | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `intersection_id` | `int` | **Primary Key** | Unique identifier for the intersection. |
+| `latitude` | `varchar(100)` | | The latitude coordinate of the intersection. |
+| `longitude` | `varchar(100)` | | The longitude coordinate of the intersection. |
+
+### Table: `light_request`
+Logs requests made to a specific traffic light.
+
+| Field | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `request_id` | `int` | **Primary Key** | Unique identifier for the request. |
+| `light_id` | `int` | **Foreign Key** (`traffic_light.light_id`) | The ID of the traffic light being requested. |
+| `request_time` | `timestamp` | | The timestamp of the request. |
+
+### Table: `road`
+Defines road segments by connecting intersections and associating them with traffic lights.
+
+| Field | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `road_id` | `int` | **Primary Key** | Unique identifier for the road segment. |
+| `light_id` | `int` | **Foreign Key** (`traffic_light.light_id`) | The traffic light associated with this road. |
+| `intersection_id_start` | `int` | **Foreign Key** (`intersection.intersection_id`) | The starting intersection of the road. |
+| `intersection_id_end` | `int` | **Foreign Key** (`intersection.intersection_id`) | The ending intersection of the road. |
+| `length` | `int` | | The length of the road segment. |
+
+### Table: `traffic_emergency_request`
+Stores requests for emergency vehicle passage through traffic.
+
+| Field | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `emergency_request` | `int` | **Primary Key** | Unique identifier for the emergency request. |
+| `user_id` | `int` | **Foreign Key** (`users.id`) | The user (e.g., paramedic) making the request. |
+| `accident_latitude` | `varchar(100)` | | The latitude of the accident location. |
+| `accident_longitude` | `varchar(100)` | | The longitude of the accident location. |
+| `destination_hospital` | `varchar(255)`| | The name or address of the destination hospital. |
+| `status` | `traffic_emergency_status` (Enum) | | The status of the request (`active`, `resolve`). |
+| `ambulance_id` | `int` | **Foreign Key** (`vehicle.vehicle_id`) | The ID of the ambulance making the request. |
+
+### Table: `vehicle`
+Tracks vehicles, such as ambulances, in the system.
+
+| Field | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `vehicle_id` | `int` | **Primary Key** | Unique identifier for the vehicle. |
+| `user_id` | `int` | **Foreign Key** (`users.id`) | The user associated with the vehicle. |
+| `current_latitude` | `varchar(100)` | | The vehicle's current latitude. |
+| `current_longitude` | `varchar(100)` | | The vehicle's current longitude. |
+| `vehicle_plate` | `varchar(10)` | | The vehicle's license plate number. |
+
 
 ---
 ## G11: Financial
@@ -834,3 +925,4 @@ Links waste statistics to a Power BI report entry.
 | `waste_event_statistic_id` | `int` | **Foreign Key** (`waste_event_statistic.id`) | Link to the specific waste statistic record. |
 | `report_type` | `varchar(255)` | | The type or name of the report. |
 | `report_date` | `timestamp` | | The date the report was generated. |
+
