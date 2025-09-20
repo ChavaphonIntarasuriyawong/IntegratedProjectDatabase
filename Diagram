@@ -548,7 +548,7 @@ Table traffic_context {
   created_at timestamp
 }
 
-//G8 transportation
+//G8 Transportation
 enum transportation_digital_card_status {
   active
   inactive
@@ -623,4 +623,40 @@ table transportation_user_request {
   fastest_route_id int [ref: > route.route_id]
   total_travel_time int [note: "record in minutes"]
   timestamp timestamp
+}
+
+// G9 Find Apartment
+
+Table apartment {
+  id int [pk]
+  apartment_name varchar[255]
+  apartment_rating decimal
+  apartment_phone varchar[15]
+}
+
+Table apartment_address {
+  id int [pk]
+  apartment_latitude decimal
+  apartment_longtitude decimal
+  district varchar(255)
+  sub_district varchar(255)
+  zip_code varchar(255)
+  more_address_detail text [note: 'apartment number, road, etc.']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table poi_categories{
+  id int [pk]
+  category_name varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table poi_location {
+  id int [pk]
+  poi_name varchar(255)
+  poi_latitude decimal
+  poi_longtitude decimal
+  category_id int [ref: > poi_categories.id]
 }
