@@ -360,6 +360,9 @@ Defines the approval status of a volunteer event.
 | `for_department_id` | int | Foreign Key to `departments.id` | The department the event is for. |
 | `title` | varchar(255) | Not Null | The title of the event. |
 | `description` | text | Not Null | A detailed description of the event. |
+| `current_participator` | int | Not Null, Default: 0 | The current number of participants. |
+| `avaliable_seat` | int | Not Null, Default: 0 | The number of available seats. |
+| `total_seat` | int | Not Null, Default: 1 | The total number of seats for the event. |
 | `start_date` | timestamp | | The start date and time of the event. |
 | `end_date` | timestamp | | The end date and time of the event. |
 | `register_deadline` | timestamp | | The deadline for registration. |
@@ -379,9 +382,6 @@ Defines the approval status of a volunteer event.
 | `id` | int | Primary Key, Auto-increment | Unique identifier for the participation record. |
 | `volunteer_event_id` | int | Foreign Key to `volunteer_events.id` | The event being participated in. |
 | `participated_user_id` | int | Foreign Key to `users.id` | The user who is participating. |
-| `current_participator` | int | Not Null, Default: 0 | The current number of participants. |
-| `avaliable_seat` | int | Not Null, Default: 0 | The number of available seats. |
-| `total_seat` | int | Not Null, Default: 1 | The total number of seats for the event. |
 | `created_at` | timestamp | | Timestamp of when the participation record was created. |
 | `updated_at` | timestamp | | Timestamp of the last update to the participation record. |
 
