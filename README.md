@@ -1,914 +1,1188 @@
-## Core User Features
-Essential tables for user management, roles, and departmental structures.
-***
-### Table: `roles`
-Stores user roles within the system.
+## User Features
 
-| Field | Data Type | Constraints | Description |
+This module contains tables for managing users, roles, and departmental affiliations.
+
+### **Table: `roles`**
+
+| Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the role. |
-| `role_name` | `varchar(50)` | | The name of the role (e.g., 'Admin', 'User', 'Doctor', etc.). |
-
-### Table: `departments`
-Stores information about different departments.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the department. |
-| `department_name` | `varchar(255)` | | The name of the department (e.g., 'Volunteer', 'Event', etc.). |
-| `created_at` | `timestamp` | | Timestamp of when the record was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update to the record. |
-
-### Table: `users`
-The main table for storing user profile information.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the user. |
-| `username` | `varchar(25)` | | The user's chosen username. |
-| `first_name` | `varchar(255)` | | The user's first name. |
-| `middle_name` | `varchar(255)` | | The user's middle name. |
-| `last_name` | `varchar(255)` | | The user's last name. |
-| `gender` | `genders` (Enum) | | The user's gender (`MALE`, `FEMALE`, `NONE`). |
-| `role_id` | `int` | **Foreign Key** (`roles.id`) | The ID of the role assigned to the user. |
-| `password_hash`| `varchar(256)` | `NOT NULL` | The user's hashed password for security. |
-| `email` | `varchar(255)` | `UNIQUE` | The user's unique email address. |
-| `phone` | `varchar(15)` | `UNIQUE` | The user's unique phone number. |
-| `address` | `text` | `NOT NULL` | The user's physical address. |
-| `birth_date` | `timestamp` | `NOT NULL` | The user's date of birth. |
-| `created_at` | `timestamp` | | Timestamp of when the user account was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update to the user profile. |
-
-### Table: `users_departments`
-
-A junction table linking users to departments.
-
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `user_id` | `int` | **Primary Key**, **Foreign Key** (`users.id`) | The identifier for the user. |
-| `department_id` | `int` | **Primary Key**, **Foreign Key** (`departments.id`) | The identifier for the department. |
-
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the role. |
+| `role_name` | varchar(50) | | The name of the role (e.g., 'Admin', 'Citizen', 'Doctor', etc.). |
 
 ***
-## G1: Know AI Courses
-This group manages online and onsite educational courses.
-***
-### Table: `courses`
-Stores general information about available courses.
 
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the course. |
-| `course_name` | `varchar(255)` | `NOT NULL` | The title of the course. |
-| `course_description` | `text` | `NOT NULL` | A detailed description of the course. |
-| `course_type` | `course_types` (Enum) | `NOT NULL` | Type (`ONLINE`, `ONSITE`, `ONLINE_AND_ONSITE`). |
-| `cover_image` | `text` | `NOT NULL` | URL or path to the course's cover image. |
-| `created_at` | `timestamp` | | Timestamp of when the course was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
+### **Enum: `genders`**
 
-### Table: `online_courses`
-Contains details specific to online course content, like video lessons.
+Defines the possible gender values for users.
 
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the online video/module. |
-| `video_name` | `varchar(100)` | `NOT NULL` | The title of the video lesson. |
-| `video_description` | `text` | `NOT NULL` | A description of the video content. |
-| `duration_minutes` | `decimal` | `NOT NULL` | The length of the video in minutes. |
-| `video_order` | `int` | `NOT NULL` | The sequence number of the video in the course. |
-| `video_file_path` | `text` | `NOT NULL` | The file path or URL to the video. |
-| `course_id` | `int` | `NOT NULL`, **Foreign Key** (`courses.id`) | The course this video belongs to. |
-| `created_at` | `timestamp` | | Timestamp of when the record was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `onsites`
-Stores information about physical, in-person course events.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the onsite event. |
-| `course_id` | `int` | **Foreign Key** (`courses.id`) | The course this event is for. |
-| `event_venue` | `text` | `NOT NULL` | The location/venue of the event. |
-| `duration_hours` | `decimal` | | The duration of the event in hours. |
-| `event_datetime` | `timestamp` | `NOT NULL` | The date and time of the event. |
-| `registration_deadline` | `timestamp` | `NOT NULL` | The deadline for event registration. |
-| `avaliable_seat` | `int` | `NOT NULL`, `DEFAULT: 0` | The number of seats currently available. |
-| `total_seat` | `int` | `NOT NULL`, `DEFAULT: 1` | The total number of seats for the event. |
-| `created_at` | `timestamp` | | Timestamp of when the record was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `onsite_enrollments`
-Tracks user enrollments for onsite events.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the enrollment. |
-| `onsite_id` | `int` | **Foreign Key** (`onsites.id`) | The ID of the onsite event. |
-| `user_id` | `int` | **Primary Key**, **Foreign Key** (`users.id`) | The ID of the user who enrolled. |
+* `MALE`
+* `FEMALE`
+* `NONE`
 
 ***
-## G3: Event Hub
-This group is for managing general events and user bookmarks.
+
+### **Table: `departments`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the department. |
+| `department_name` | varchar(255) | | The name of the department. |
+| `created_at` | timestamp | | Timestamp of when the department was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the department record. |
+
 ***
 
-### Table: `event`
-Stores details about events.
+### **Table: `users`**
 
-| Field | Data Type | Constraints | Description |
+| Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the event. |
-| `host_event_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user hosting the event. |
-| `title` | `varchar(255)` | | The title of the event. |
-| `description` | `varchar(255)` | | A description of the event. |
-| `avaliable_seat` | `int` | | Number of available seats. |
-| `total_seat` | `int` | | Total number of seats. |
-| `start_date` | `timestamp` | | The start date and time of the event. |
-| `end_date` | `timestamp` | | The end date and time of the event. |
-| `location` | `text` | | The location of the event. |
-| `created_at` | `timestamp` | | Timestamp of record creation. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-
-### Table: `bookmark`
-Allows users to save or bookmark events they are interested in.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `user_id` | `int` | **Primary Key**, **Foreign Key** (`users.id`) | The ID of the user bookmarking the event. |
-| `event_id` | `int` | **Primary Key**, **Foreign Key** (`event.id`) | The ID of the bookmarked event. |
-| `createdAt` | `timestamp` | | Timestamp of when the bookmark was created. |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the user. |
+| `username` | varchar(25) | | The user's login name. |
+| `first_name` | varchar(255) | | The user's first name. |
+| `middle_name` | varchar(255) | | The user's middle name. |
+| `last_name` | varchar(255) | | The user's last name. |
+| `gender` | genders | | The gender of the user. |
+| `role_id` | int | Foreign Key to `roles.id` | The role assigned to the user. |
+| `password_hash` | varchar(256) | Not Null | The user's securely hashed password. |
+| `email` | varchar(255) | Unique | The user's unique email address. |
+| `phone` | varchar(15) | Unique | The user's unique phone number. |
+| `province` | varchar(255) | | The province part of the user's address. |
+| `district` | varchar(255) | | The district part of the user's address. |
+| `subdistrict` | varchar(255) | | The subdistrict part of the user's address. |
+| `zip_code` | varchar(20) | | The postal code for the user's address. |
+| `more_address_detail` | text | | Additional address details (e.g., house number, street). |
+| `birth_date` | timestamp | Not Null | The user's date of birth. |
+| `created_at` | timestamp | | Timestamp of when the user account was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the user's profile. |
 
 ***
-## G4: Freecycle
-This group facilitates a system for users to give away items for free.
-***
 
-### Table: `freecycle_posts`
-Stores posts created by users for items they are giving away.
+### **Table: `users_departments`**
 
-| Field | Data Type | Constraints | Description |
+A junction table linking users to the departments they belong to (many-to-many relationship).
+
+| Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the post. |
-| `item_name` | `varchar(100)` | `NOT NULL` | The name of the item being offered. |
-| `item_weight` | `decimal` | | The weight of the item. |
-| `photo_url` | `text` | `NOT NULL` | URL to a photo of the item. |
-| `description` | `text` | `NOT NULL` | A description of the item. |
-| `donater_id` | `int` | `NOT NULL`, **Foreign Key** (`users.id`) | The ID of the user who created the post.|
-| `receiver_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user who received the item. Can be NULL if the item is given to another department instead of being gave to a user.|
-| `donate_to_department_id` | `int` | **Foreign Key** (`departments.id`) | Indicates if the user chose to donate the item to a department or give it to another user. Can be NULL if the item is given to another user instead of being donated to a department. |
-| `is_given` | `boolean` | `DEFAULT: false` | A flag indicating if the item has been given away. |
-| `created_at` | `timestamp` | | Timestamp of when the post was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `freecycle_categories`
-Stores categories for freecycle items (e.g., 'Furniture', 'Electronics').
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the category. |
-| `category_name`| `varchar(100)` | | The name of the category. |
-| `created_at` | `timestamp` | | Timestamp of when the category was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `freecycle_posts_categories`
-A junction table linking freecycle posts to their respective categories.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `post_id` | `int` | **Primary Key**, **Foreign Key** (`freecycle_posts.id`) | The identifier for the freecycle post. |
-| `category_id` | `int` | **Primary Key**, **Foreign Key** (`freecycle_categories.id`) | The identifier for the category. |
-
-
-***
-## G5: Air Quality
-This group manages data related to air quality and environmental context.
-***
-### Table: `air_quality`
-Stores air quality index (AQI) and pollutant measurements for specific locations.
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the air quality reading. |
-| `location` | `text` | `NOT NULL` | The location where the measurement was taken. |
-| `aqi` | `decimal` | | The overall Air Quality Index value. |
-| `pm25` | `decimal` | | PM2.5 particle concentration. |
-| `pm10` | `decimal` | | PM10 particle concentration. |
-| `co` | `decimal` | | Carbon Monoxide concentration. |
-| `no2` | `decimal` | | Nitrogen Dioxide concentration. |
-| `so2` | `decimal` | | Sulfur Dioxide concentration. |
-| `o3` | `decimal` | | Ozone concentration. |
-| `category` | `categories` (Enum) | | The air quality category (`GOOD`, `MODERATE`, etc.). |
-| `created_at` | `timestamp` | | Timestamp of when the reading was recorded. |
-
-### Table: `weather_context`
-Stores weather-related data that can affect air quality.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the weather context record. |
-| `rain_forecast`| `decimal` | | The forecasted probability or amount of rain. |
-| `created_at` | `timestamp` | | Timestamp of when the record was created. |
-
-### Table: `traffic_context`
-Stores traffic data that can influence air quality.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the traffic context record. |
-| `congestion_level`| `decimal` | | A metric representing the level of traffic congestion. |
-| `created_at` | `timestamp` | | Timestamp of when the record was created. |
-
-***
-## G6: Volunteer
-This group handles volunteer events and participant tracking.
-***
-### Table: `volunteer_events`
-Stores information about volunteer opportunities.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the volunteer event. |
-| `user_created_event_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user who created the event. |
-| `title` | `varchar(255)` | `NOT NULL` | The title of the volunteer event. |
-| `description` | `text` | `NOT NULL` | A detailed description of the event. |
-| `start_date` | `timestamp` | | The start date and time of the event. |
-| `end_date` | `timestamp` | | The end date and time of the event. |
-| `register_deadline` | `timestamp` | | The deadline for registration. |
-| `location` | `text` | | The location of the event. |
-| `status` | `volunteer_event_status` (Enum) | | The status (`DRAFT`, `PENDING`, `APPROVED`). |
-| `created_at` | `timestamp` | | Timestamp of when the event was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `volunteer_event_participation`
-Tracks user participation in volunteer events.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the participation record. |
-| `volunteer_event_id` | `int` | **Foreign Key** (`volunteer_events.id`) | The ID of the volunteer event. |
-| `participated_user_id` | `int` | **Foreign Key** (`users.id`) | The ID of the user participating. |
-| `current_participator` | `int` | `NOT NULL`, `DEFAULT: 0` | The current number of participants. |
-| `avaliable_seat` | `int` | `NOT NULL`, `DEFAULT: 0` | The number of available spots. |
-| `total_seat` | `int` | `NOT NULL`, `DEFAULT: 1` | The total number of spots. |
-| `created_at` | `timestamp` | | Timestamp of when the participation was recorded. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-
-***
-## G7: Power BI Report Management
-This group contains the data warehouse star schema for BI reporting.
-***
-### Table: `dim_time`
-A dimension table for time-based analysis.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `time_id` | `int` | **Primary Key** | Unique identifier for the time record. |
-| `date` | `timestamp` | | The full date and time. |
-| `year` | `int` | | The year component. |
-| `month` | `int` | | The month component. |
-| `day` | `int` | | The day component. |
-| `hour` | `int` | | The hour component. |
-| `week_a_day` | `varchar(255)` | | The day of the week (e.g., 'Monday'). |
-
-### Table: `dim_location`
-A dimension table for geographical location data.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `location_id` | `int` | **Primary Key** | Unique identifier for the location. |
-| `district` | `varchar(255)` | | The district name. |
-| `subdistrict` | `varchar(255)` | | The subdistrict name. |
-| `latitude` | `decimal` | | The latitude coordinate. |
-| `longitude` | `decimal` | | The longitude coordinate. |
-
-### Table: `dim_facility`
-A dimension table for facilities like hospitals.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `facility_id` | `int` | **Primary Key** | Unique identifier for the facility. |
-| `facility_type` | `varchar(255)` | | The type of facility (e.g., 'Hospital'). |
-| `facility_name` | `varchar(255)` | | The name of the facility. |
-| `location_id` | `int` | **Foreign Key** (`dim_location.location_id`) | Link to the location dimension. |
-
-### Table: `dim_user`
-A dimension table for user information.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `user_id` | `int` | **Primary Key** | Unique identifier for the user. |
-| `role` | `varchar` | | The user's role. |
-| `department` | `varchar` | | The user's department. |
-
-### Table: `dim_category`
-A dimension table for categories.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `category_id` | `int` | **Primary Key** | Unique identifier for the category. |
-| `category_name` | `varchar(255)` | | The name of the category. |
-
-### Table: `report_metadata`
-Stores metadata about the generated BI reports.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `report_id` | `int` | **Primary Key**, Auto-Increment | Unique ID for the report metadata. |
-| `title` | `varchar(255)` | | The title of the report. |
-| `description` | `varchar(255)` | | A description of the report. |
-| `category_id` | `int` | **Foreign Key** (`dim_category.category_id`) | Link to the category dimension. |
-| `created_by` | `int` | **Foreign Key** (`dim_user.user_id`) | Link to the user dimension. |
-| `last_updated` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `fact_traffic`, `fact_waste`, `fact_healthcare`, `fact_weather`, `fact_demographic`
-Fact tables containing quantitative measures for analysis.
-
-| Table | Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **fact_traffic** | `traffic_id` | `int` | **PK**, Auto-Inc | Unique identifier for traffic fact. |
-| | `time_id` | `int` | **FK** (`dim_time.time_id`) | Link to time dimension. |
-| | `location_id` | `int` | **FK** (`dim_location.location_id`) | Link to location dimension. |
-| | `speed_kmh` | `decimal` | | Average speed in km/h. |
-| | `accident_flag`| `boolean` | | Flag for accidents. |
-| | `closure_flag` | `boolean` | | Flag for road closures. |
-| **fact_waste** | `waste_id` | `int` | **PK**, Auto-Inc | Unique identifier for waste fact. |
-| | `time_id` | `int` | **FK** (`dim_time.time_id`) | Link to time dimension. |
-| | `location_id` | `int` | **FK** (`dim_location.location_id`) | Link to location dimension. |
-| | `bin_fill_level_percent` | `int` | | Waste bin fill level percentage. |
-| | `recycling_tonnage` | `decimal` | | Weight of recycled materials in tons. |
-| **fact_healthcare**| `health_id` | `int` | **PK**, Auto-Inc | Unique identifier for healthcare fact. |
-| | `time_id` | `int` | **FK** (`dim_time.time_id`) | Link to time dimension. |
-| | `facility_id` | `int` | **FK** (`dim_facility.facility_id`) | Link to facility dimension. |
-| | `wait_time_minutes` | `int` | | Patient wait time in minutes. |
-| | `alert_type` | `varchar(255)` | | Type of health alert. |
-| | `cases_reported`| `int` | | Number of cases reported. |
-| **fact_weather** | `weather_id` | `int` | **PK**, Auto-Inc | Unique identifier for weather fact. |
-| | `time_id` | `int` | **FK** (`dim_time.time_id`) | Link to time dimension. |
-| | `location_id` | `int` | **FK** (`dim_location.location_id`) | Link to location dimension. |
-| | `temperature` | `decimal` | | Temperature reading. |
-| | `aqi` | `int` | | Air Quality Index. |
-| | `warning_flag` | `boolean` | | Flag for weather warnings. |
-| **fact_demographic**|`demographic_id`| `int` | **PK**, Auto-Inc | Unique identifier for demographic fact. |
-| | `time_id` | `int` | **FK** (`dim_time.time_id`) | Link to time dimension. |
-| | `location_id` | `int` | **FK** (`dim_location.location_id`) | Link to location dimension. |
-| | `population_total`|`int` | | Total population count. |
-
-***
-## G8: Transportation
-This group manages public transportation systems, including cards, vehicles, and routes. 🚌
-***
-### Table: `digital_card`
-Stores user transportation digital cards.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `card_id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the card. |
-| `user_id` | `int` | **Foreign Key** (`users.id`) | The user associated with the card. |
-| `status` | `transportation_digital_card_status` (Enum) | | Status (`active`, `inactive`). |
-
-### Table: `transportation_vehicle_type`
-Defines types of transportation vehicles.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `type_id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the vehicle type. |
-| `type_name` | `varchar(100)` | | Name of the type (e.g., 'Bus', 'Van'). |
-
-### Table: `route`
-Stores information about transportation routes.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `route_id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the route. |
-| `route_name` | `varchar(255)` | | The name or number of the route. |
-| `type_id` | `int` | **Foreign Key** (`transportation_vehicle_type.type_id`) | The type of vehicle for this route. |
-
-### Table: `transportation_card_transaction`
-Logs transactions made with digital transportation cards.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `transaction_id` | `int` | **Primary Key**, Auto-Increment | Unique ID for the transaction. |
-| `card_id` | `int` | **Foreign Key** (`digital_card.card_id`) | The card used for the transaction. |
-| `route_id` | `int` | **Foreign Key** (`route.route_id`) | The route taken. |
-| `amount` | `decimal` | | The transaction amount. |
-| `status` | `transportation_card_transaction_status` (Enum) | | Status (`pending`, `confirmed`, `failed`). |
-| `timestamp` | `timestamp` | | Time of the transaction. |
-
-### Table: `transportation_vehicle`
-Tracks individual transportation vehicles.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `vehicle_id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the vehicle. |
-| `type_id` | `int` | **Foreign Key** (`transportation_vehicle_type.type_id`) | The type of vehicle. |
-| `route_id` | `int` | **Foreign Key** (`route.route_id`) | The current assigned route. |
-| `current_latitude` | `varchar(100)` | | The vehicle's current latitude. |
-| `current_longitude` | `varchar(100)` | | The vehicle's current longitude. |
-| `status` | `transportation_vehicle_status` (Enum) | | Status (`active`, `maintenance`). |
-
-### Table: `stop`
-Stores information about individual bus/van stops.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `stop_id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the stop. |
-| `stop_name` | `varchar(255)` | | The name of the stop. |
-| `stop_latitude` | `varchar(100)` | | The latitude of the stop. |
-| `stop_longitude`| `varchar(100)` | | The longitude of the stop. |
-
-### Table: `route_stop`
-A junction table that defines the sequence of stops for each route.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `route_stop_id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for this entry. |
-| `route_id` | `int` | **Foreign Key** (`route.route_id`) | The route identifier. |
-| `stop_id` | `int` | **Foreign Key** (`stop.stop_id`) | The stop identifier. |
-| `stop_order` | `int` | | The order of this stop on the route. |
-| `travel_time_to_next_stop` | `int` | | Estimated travel time to the next stop in minutes. |
-
-### Table: `transportation_user_request`
-Logs user requests for route planning.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `request_id` | `int` | **Primary Key**, Auto-Increment | Unique ID for the request. |
-| `user_id` | `int` | **Foreign Key** (`users.id`) | The user making the request. |
-| `origin_stop_id`| `int` | **Foreign Key** (`stop.stop_id`) | The starting stop. |
-| `destination_stop_id`| `int` | **Foreign Key** (`stop.stop_id`) | The destination stop. |
-| `fastest_route_id`| `int` | **Foreign Key** (`route.route_id`) | The recommended route. |
-| `total_travel_time`| `int` | | The total estimated travel time in minutes. |
-| `timestamp` | `timestamp` | | Time of the request. |
-
-***
-## G9: Find Apartment
-This group manages apartment listings and related points of interest. 
-***
-### Table: `apartment`
-Stores basic information about apartments.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the apartment. |
-| `apartment_name`| `varchar(255)` | | The name of the apartment building. |
-| `apartment_rating`| `decimal` | | The user rating of the apartment. |
-| `apartment_phone`| `varchar(15)` | | The contact phone number. |
-
-### Table: `apartment_address`
-Stores detailed address information for apartments.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the address. |
-| `apartment_id`| `int` | **Foreign Key** (`apartment.id`), One-to-One | Link to the apartment table. |
-| `apartment_latitude`| `decimal` | | The latitude coordinate. |
-| `apartment_longitude`| `decimal` | | The longitude coordinate. |
-| `district` | `varchar(255)` | | The district name. |
-| `sub_district`| `varchar(255)` | | The sub-district name. |
-| `zip_code` | `varchar(255)` | | The postal zip code. |
-| `more_address_detail`| `text` | | More details like building number, road, etc. |
-| `created_at` | `timestamp` | | Timestamp of record creation. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `poi_categories`
-Stores categories for Points of Interest (POI).
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique ID for the POI category. |
-| `category_name`| `varchar(255)` | | Name of the category (e.g., 'Restaurant', 'Park'). |
-| `created_at` | `timestamp` | | Timestamp of record creation. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `poi_location`
-Stores information about specific Points of Interest.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique ID for the POI. |
-| `poi_name` | `varchar(255)` | | The name of the POI. |
-| `poi_latitude`| `decimal` | | The latitude coordinate of the POI. |
-| `poi_longitude`| `decimal` | | The longitude coordinate of the POI. |
-| `category_id` | `int` | **Foreign Key** (`poi_categories.id`) | The category this POI belongs to. |
-
-
+| `user_id` | int | Primary Key, Foreign Key to `users.id` | The ID of the user. |
+| `department_id` | int | Primary Key, Foreign Key to `departments.id` | The ID of the department. |
 
 ---
+
+## G1: Know AI Courses
+
+This module manages online and onsite educational courses.
+
+### **Enum: `course_types`**
+
+Defines the delivery format of a course.
+
+* `ONLINE`
+* `ONSITE`
+* `ONLINE_AND_ONSITE`
+
+***
+
+### **Table: `courses`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the course. |
+| `course_name` | varchar(255) | Not Null | The name of the course. |
+| `course_description` | text | Not Null | A detailed description of the course. |
+| `course_type` | course_types | Not Null | The type of course (e.g., 'ONLINE', 'ONSITE'). |
+| `cover_image` | text | Not Null | URL for the course's cover image. |
+| `created_at` | timestamp | | Timestamp of when the course was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the course. |
+
+***
+
+### **Table: `online_courses`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the online course module. |
+| `video_name` | varchar(100) | Not Null | The name of the video. |
+| `video_description` | text | Not Null | A description of the video content. |
+| `duration_minutes` | decimal | Not Null | The duration of the video in minutes. |
+| `video_order` | int | Not Null | The order of this video within the course. |
+| `video_file_path` | text | Not Null | The file path or URL to the video. |
+| `course_id` | int | Not Null, Foreign Key to `courses.id` | The parent course this video belongs to. |
+| `created_at` | timestamp | | Timestamp of when the online module was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the online module. |
+
+***
+
+### **Table: `onsites`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the onsite event. |
+| `course_id` | int | Foreign Key to `courses.id` | The parent course this event belongs to. |
+| `province` | varchar(255) | | The province of the event location. |
+| `district` | varchar(255) | | The district of the event location. |
+| `subdistrict` | varchar(255) | | The subdistrict of the event location. |
+| `more_address_detail` | text | | Additional address details for the event. |
+| `duration_hours` | decimal | | The duration of the event in hours. |
+| `event_datetime` | timestamp | Not Null | The date and time of the event. |
+| `registration_deadline` | timestamp | Not Null | The deadline for registration. |
+| `avaliable_seat` | int | Not Null, Default: 0 | The number of available seats. |
+| `total_seat` | int | Not Null, Default: 1 | The total number of seats for the event. |
+| `created_at` | timestamp | | Timestamp of when the onsite event was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the onsite event. |
+
+***
+
+### **Table: `onsite_enrollments`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the enrollment. |
+| `onsite_id` | int | Foreign Key to `onsites.id` | The ID of the onsite event. |
+| `user_id` | int | Primary Key, Foreign Key to `users.id` | The ID of the enrolled user. |
+
+---
+
+## G3: Event Hub
+
+A general-purpose module for community events.
+
+### **Table: `event`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the event. |
+| `host_event_id` | int | Foreign Key to `users.id` | The user hosting the event. |
+| `title` | varchar(255) | | The title of the event. |
+| `description` | varchar(255) | | A description of the event. |
+| `avaliable_seat` | int | | The number of available seats. |
+| `total_seat` | int | | The total number of seats for the event. |
+| `start_date` | timestamp | | The start date and time of the event. |
+| `end_date` | timestamp | | The end date and time of the event. |
+| `province` | varchar(255) | | The province where the event is located. |
+| `district` | varchar(255) | | The district where the event is located. |
+| `subdistrict` | varchar(255) | | The subdistrict where the event is located. |
+| `more_location_detail` | text | | Additional location details. |
+| `created_at` | timestamp | | Timestamp of when the event was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the event. |
+
+***
+
+### **Table: `bookmark`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `user_id` | int | Primary Key, Foreign Key to `users.id` | The ID of the user who created the bookmark. |
+| `event_id` | int | Primary Key, Foreign Key to `event.id` | The ID of the event being bookmarked. |
+| `createdAt` | timestamp | | Timestamp of when the bookmark was created. |
+
+---
+
+## G4: Freecycle
+
+This module manages the posting and claiming of free items.
+
+### **Table: `freecycle_posts`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the freecycle post. |
+| `item_name` | varchar(100) | Not Null | The name of the item. |
+| `item_weight` | decimal | | The approximate weight of the item. |
+| `photo_url` | text | Not Null | URL of the item's photo. |
+| `description` | text | Not Null | A description of the item. |
+| `donater_id` | int | Not Null, Foreign Key to `users.id` | The user who is donating the item. |
+| `receiver_id` | int | Foreign Key to `users.id` | The user who has claimed the item. |
+| `donate_to_department_id` | int | Foreign Key to `departments.id` | Specifies if the item is donated to a specific department. |
+| `is_given` | boolean | Default: `false` | A flag indicating if the item has been successfully given away. |
+| `created_at` | timestamp | | Timestamp of when the post was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the post. |
+
+***
+
+### **Table: `freecycle_categories`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the category. |
+| `category_name` | varchar(100) | | The name of the category (e.g., 'Furniture', 'Electronics'). |
+| `created_at` | timestamp | | Timestamp of when the category was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the category. |
+
+***
+
+### **Table: `freecycle_posts_categories`**
+
+A junction table linking freecycle posts to their categories.
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `post_id` | int | Primary Key, Foreign Key to `freecycle_posts.id` | The ID of the freecycle post. |
+| `category_id` | int | Primary Key, Foreign Key to `freecycle_categories.id` | The ID of the category. |
+
+---
+
+## G5: Air Quality
+
+This module manages air quality and related environmental data.
+
+### **Enum: `categories`**
+
+Air quality index (AQI) categories.
+
+* `GOOD`
+* `MODERATE`
+* `UNHEALTHY`
+* `HAZARDDOUS`
+
+***
+
+### **Table: `air_quality`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the air quality reading. |
+| `province` | varchar(255) | | The province of the reading. |
+| `district` | varchar(255) | | The district of the reading. |
+| `subdistrict` | varchar(255) | | The subdistrict of the reading. |
+| `more_address_detail` | text | | More specific location details. |
+| `aqi` | decimal | | The overall Air Quality Index value. |
+| `pm25` | decimal | | PM2.5 particle concentration. |
+| `pm10` | decimal | | PM10 particle concentration. |
+| `co` | decimal | | Carbon Monoxide concentration. |
+| `no2` | decimal | | Nitrogen Dioxide concentration. |
+| `so2` | decimal | | Sulfur Dioxide concentration. |
+| `o3` | decimal | | Ozone concentration. |
+| `category` | categories | | The AQI category based on the readings. |
+| `created_at` | timestamp | | Timestamp of when the reading was recorded. |
+
+***
+
+### **Table: `weather_context`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the weather record. |
+| `rain_forecast` | decimal | | The forecasted probability or amount of rain. |
+| `created_at` | timestamp | | Timestamp of when the forecast was recorded. |
+
+***
+
+### **Table: `traffic_context`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the traffic record. |
+| `congestion_level` | decimal | | The level of traffic congestion. |
+| `created_at` | timestamp | | Timestamp of when the congestion level was recorded. |
+
+---
+
+## G6: Volunteer
+
+This module manages volunteer events and participation.
+
+### **Enum: `volunteer_event_status`**
+
+Defines the approval status of a volunteer event.
+
+* `DRAFT`
+* `PENDING`
+* `APPROVED`
+* `REJECTED`
+
+***
+
+### **Table: `volunteer_events`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the volunteer event. |
+| `user_created_event_id` | int | Foreign Key to `users.id` | The user who created the event. |
+| `title` | varchar(255) | Not Null | The title of the event. |
+| `description` | text | Not Null | A detailed description of the event. |
+| `start_date` | timestamp | | The start date and time of the event. |
+| `end_date` | timestamp | | The end date and time of the event. |
+| `register_deadline` | timestamp | | The deadline for registration. |
+| `district` | varchar(255) | | The district where the event is located. |
+| `subdistrict` | varchar(255) | | The subdistrict where the event is located. |
+| `more_location_detail` | text | | Additional location details. |
+| `status` | volunteer_event_status | | The current status of the event (e.g., 'PENDING', 'APPROVED'). |
+| `created_at` | timestamp | | Timestamp of when the event was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the event. |
+
+***
+
+### **Table: `volunteer_event_participation`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the participation record. |
+| `volunteer_event_id` | int | Foreign Key to `volunteer_events.id` | The event being participated in. |
+| `participated_user_id` | int | Foreign Key to `users.id` | The user who is participating. |
+| `current_participator` | int | Not Null, Default: 0 | The current number of participants. |
+| `avaliable_seat` | int | Not Null, Default: 0 | The number of available seats. |
+| `total_seat` | int | Not Null, Default: 1 | The total number of seats for the event. |
+| `created_at` | timestamp | | Timestamp of when the participation record was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the participation record. |
+
+---
+
+## G7: Power BI Report Management
+
+This module defines a star schema for data warehousing and business intelligence.
+
+### **Table: `dim_time`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `time_id` | int | Primary Key, Auto-increment | Unique identifier for the time record. |
+| `date` | timestamp | | The full timestamp. |
+| `year` | int | | The year component. |
+| `month` | int | | The month component. |
+| `day` | int | | The day component. |
+| `hour` | int | | The hour component. |
+| `week_a_day` | varchar(255) | | The day of the week (e.g., 'Monday'). |
+
+***
+
+### **Table: `dim_location`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `location_id` | int | Primary Key, Auto-increment | Unique identifier for the location. |
+| `province` | varchar(255) | | The province name. |
+| `district` | varchar(255) | | The district name. |
+| `subdistrict` | varchar(255) | | The subdistrict name. |
+| `latitude` | decimal | | The geographical latitude. |
+| `longitude` | decimal | | The geographical longitude. |
+
+***
+
+### **Table: `dim_facility`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `facility_id` | int | Primary Key, Auto-increment | Unique identifier for the facility. |
+| `facility_type` | varchar(255) | | The type of facility. |
+| `facility_name` | varchar(255) | | The name of the facility. |
+| `location_id` | int | Foreign Key to `dim_location.location_id` | Link to the facility's location. |
+
+***
+
+### **Table: `fact_traffic`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `traffic_id` | int | Primary Key, Auto-increment | Unique identifier for the traffic fact. |
+| `time_id` | int | Foreign Key to `dim_time.time_id` | Link to the time dimension. |
+| `location_id` | int | Foreign Key to `dim_location.location_id` | Link to the location dimension. |
+| `speed_kmh` | decimal | | Average traffic speed in km/h. |
+| `accident_flag` | boolean | | Flag indicating if an accident occurred. |
+| `closure_flag` | boolean | | Flag indicating if there was a road closure. |
+
+***
+
+### **Table: `fact_waste`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `waste_id` | int | Primary Key, Auto-increment | Unique identifier for the waste fact. |
+| `time_id` | int | Foreign Key to `dim_time.time_id` | Link to the time dimension. |
+| `location_id` | int | Foreign Key to `dim_location.location_id` | Link to the location dimension. |
+| `bin_fill_level_percent` | int | | The fill level of waste bins in percentage. |
+| `recycling_tonnage` | decimal | | The weight of recycled materials in tonnage. |
+
+***
+
+### **Table: `fact_healthcare`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `health_id` | int | Primary Key, Auto-increment | Unique identifier for the healthcare fact. |
+| `time_id` | int | Foreign Key to `dim_time.time_id` | Link to the time dimension. |
+| `facility_id` | int | Foreign Key to `dim_facility.facility_id` | Link to the facility dimension. |
+| `wait_time_minutes` | int | | Average patient wait time in minutes. |
+| `alert_type` | varchar(255) | | The type of health alert issued. |
+| `cases_reported` | int | | The number of new cases reported. |
+
+***
+
+### **Table: `fact_weather`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `weather_id` | int | Primary Key, Auto-increment | Unique identifier for the weather fact. |
+| `time_id` | int | Foreign Key to `dim_time.time_id` | Link to the time dimension. |
+| `location_id` | int | Foreign Key to `dim_location.location_id` | Link to the location dimension. |
+| `temperature` | decimal | | The temperature reading. |
+| `aqi` | int | | The Air Quality Index value. |
+| `warning_flag` | boolean | | Flag indicating if a weather warning was active. |
+
+***
+
+### **Table: `fact_demographic`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `demographic_id` | int | Primary Key, Auto-increment | Unique identifier for the demographic fact. |
+| `time_id` | int | Foreign Key to `dim_time.time_id` | Link to the time dimension. |
+| `location_id` | int | Foreign Key to `dim_location.location_id` | Link to the location dimension. |
+| `population_total` | int | | The total population count. |
+
+***
+
+### **Table: `dim_user`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `user_id` | int | Primary Key, Auto-increment | Unique identifier for the user. |
+| `role` | varchar | | The role of the user. |
+| `department` | varchar | | The department of the user. |
+
+***
+
+### **Table: `dim_category`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `category_id` | int | Primary Key, Auto-increment | Unique identifier for the category. |
+| `category_name` | varchar(255) | | The name of the category. |
+
+***
+
+### **Table: `report_metadata`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `report_id` | int | Primary Key, Auto-increment | Unique identifier for the report. |
+| `title` | varchar(255) | | The title of the report. |
+| `description` | varchar(255) | | A description of the report. |
+| `category_id` | int | Foreign Key to `dim_category.category_id` | The category of the report. |
+| `created_by` | int | Foreign Key to `dim_user.user_id` | The user who created the report. |
+| `last_updated` | timestamp | | Timestamp of the last update to the report. |
+
+---
+
+## G8: Transportation
+
+This module manages public transportation, routes, and user interactions.
+
+### **Enum: `transportation_digital_card_status`**
+
+* `active`
+* `inactive`
+
+***
+
+### **Table: `digital_card`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `card_id` | int | Primary Key, Auto-increment | Unique identifier for the digital card. |
+| `user_id` | int | Foreign Key to `users.id` | The user who owns the card. |
+| `status` | transportation_digital_card_status | | The status of the card. |
+
+***
+
+### **Enum: `transportation_card_transaction_status`**
+
+* `pending`
+* `confirmed`
+* `failed`
+
+***
+
+### **Table: `transportation_vehicle_type`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `type_id` | int | Primary Key, Auto-increment | Unique identifier for the vehicle type. |
+| `type_name` | varchar(100) | | The name of the vehicle type (e.g., 'Bus', 'Train'). |
+
+***
+
+### **Table: `route`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `route_id` | int | Primary Key, Auto-increment | Unique identifier for the route. |
+| `route_name` | varchar(255) | | The name or number of the route. |
+| `type_id` | int | Foreign Key to `transportation_vehicle_type.type_id` | The type of vehicle that serves this route. |
+
+***
+
+### **Table: `transportation_card_transaction`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `transaction_id` | int | Primary Key, Auto-increment | Unique identifier for the transaction. |
+| `card_id` | int | Foreign Key to `digital_card.card_id` | The card used for the transaction. |
+| `route_id` | int | Foreign Key to `route.route_id` | The route on which the transaction occurred. |
+| `amount` | decimal | | The transaction amount (fare). |
+| `status` | transportation_card_transaction_status | | The status of the transaction. |
+| `timestamp` | timestamp | | Timestamp of when the transaction occurred. |
+
+***
+
+### **Enum: `transportation_vehicle_status`**
+
+* `active`
+* `maintenance`
+
+***
+
+### **Table: `transportation_vehicle`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `vehicle_id` | int | Primary Key, Auto-increment | Unique identifier for the vehicle. |
+| `type_id` | int | Foreign Key to `transportation_vehicle_type.type_id` | The type of the vehicle. |
+| `route_id` | int | Foreign Key to `route.route_id` | The route the vehicle is currently assigned to. |
+| `current_latitude` | varchar(100) | | The current latitude of the vehicle. |
+| `current_longitude` | varchar(100) | | The current longitude of the vehicle. |
+| `status` | transportation_vehicle_status | | The operational status of the vehicle. |
+
+***
+
+### **Table: `stop`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `stop_id` | int | Primary Key, Auto-increment | Unique identifier for the stop. |
+| `stop_name` | varchar(255) | | The name of the stop. |
+| `stop_latitude` | varchar(100) | | The latitude of the stop. |
+| `stop_longitude` | varchar(100) | | The longitude of the stop. |
+
+***
+
+### **Table: `route_stop`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `route_stop_id` | int | Primary Key, Auto-increment | Unique identifier for the route-stop link. |
+| `route_id` | int | Foreign Key to `route.route_id` | The route ID. |
+| `stop_id` | int | Foreign Key to `stop.stop_id` | The stop ID. |
+| `stop_order` | int | | The sequence number of this stop on the route. |
+| `travel_time_to_next_stop` | int | | Estimated travel time to the next stop in minutes. |
+
+***
+
+### **Table: `transportation_user_request`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `request_id` | int | Primary Key, Auto-increment | Unique identifier for the request. |
+| `user_id` | int | Foreign Key to `users.id` | The user making the request. |
+| `origin_stop_id` | int | Foreign Key to `stop.stop_id` | The starting stop for the trip. |
+| `destination_stop_id` | int | Foreign Key to `stop.stop_id` | The destination stop for the trip. |
+| `fastest_route_id` | int | Foreign Key to `route.route_id` | The suggested fastest route for the trip. |
+| `total_travel_time` | int | | The estimated total travel time in minutes. |
+| `timestamp` | timestamp | | Timestamp of when the request was made. |
+
+---
+
+## G9: Find Apartment
+
+This module helps users find apartments and points of interest.
+
+### **Table: `apartment`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the apartment building. |
+| `apartment_name` | varchar(255) | | The name of the apartment building. |
+| `apartment_rating` | decimal | | The average user rating for the apartment. |
+| `apartment_phone` | varchar(15) | | The contact phone number for the apartment. |
+
+***
+
+### **Table: `apartment_address`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the address record. |
+| `apartment_id` | int | Foreign Key to `apartment.id` | The apartment this address belongs to. |
+| `apartment_latitude` | decimal | | The geographical latitude of the apartment. |
+| `apartment_longitude` | decimal | | The geographical longitude of the apartment. |
+| `province` | varchar(255) | | The province of the apartment's address. |
+| `district` | varchar(255) | | The district of the apartment's address. |
+| `sub_district` | varchar(255) | | The sub-district of the apartment's address. |
+| `zip_code` | varchar(255) | | The postal code for the apartment's address. |
+| `more_address_detail` | text | | Additional address details (e.g., street, building number). |
+| `created_at` | timestamp | | Timestamp of when the address was added. |
+| `updated_at` | timestamp | | Timestamp of the last update to the address. |
+
+***
+
+### **Table: `poi_categories`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the POI category. |
+| `category_name` | varchar(255) | | The name of the category (e.g., 'Restaurant', 'Park'). |
+| `created_at` | timestamp | | Timestamp of when the category was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the category. |
+
+***
+
+### **Table: `poi_location`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the POI. |
+| `poi_name` | varchar(255) | | The name of the POI. |
+| `poi_latitude` | decimal | | The geographical latitude of the POI. |
+| `poi_longitude` | decimal | | The geographical longitude of the POI. |
+| `category_id` | int | Foreign Key to `poi_categories.id` | The category this POI belongs to. |
+
+---
+
 ## G10: Traffic
 
-This group manages traffic control systems, intersections, and emergency requests.
+This module manages traffic lights and emergency traffic requests.
+
+### **Table: `traffic_light`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `light_id` | int | Primary Key, Auto-increment | Unique identifier for the traffic light. |
+| `latitude` | varchar(100) | | The geographical latitude of the traffic light. |
+| `longitude` | varchar(100) | | The geographical longitude of the traffic light. |
+| `status` | boolean | | The operational status of the light (online/offline). |
+| `current_color` | int | | The current color state of the light. |
+| `density_level` | int | | The level of traffic density detected. |
+| `auto_mode` | boolean | | Flag indicating if the light is in automatic or manual mode. |
+| `last_updated` | timestamp | | Timestamp of the last status update. |
+
+***
+
+### **Table: `intersection`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `intersection_id` | int | Primary Key, Auto-increment | Unique identifier for the intersection. |
+| `latitude` | varchar(100) | | The geographical latitude of the intersection. |
+| `longitude` | varchar(100) | | The geographical longitude of the intersection. |
+
+***
+
+### **Table: `light_request`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `request_id` | int | Primary Key, Auto-increment | Unique identifier for the request. |
+| `light_id` | int | Foreign Key to `traffic_light.light_id` | The traffic light being requested. |
+| `request_time` | timestamp | | The time the request was made. |
+
+***
+
+### **Table: `road`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `road_id` | int | Primary Key, Auto-increment | Unique identifier for the road segment. |
+| `light_id` | int | Foreign Key to `traffic_light.light_id` | The traffic light controlling this road segment. |
+| `intersection_id_start` | int | Foreign Key to `intersection.intersection_id` | The starting intersection of the road. |
+| `intersection_id_end` | int | Foreign Key to `intersection.intersection_id` | The ending intersection of the road. |
+| `length` | int | | The length of the road segment. |
+
+***
+
+### **Enum: `traffic_emergency_status`**
+
+* `active`
+* `resolve`
+
+***
+
+### **Table: `vehicle`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `vehicle_id` | int | Primary Key, Auto-increment | Unique identifier for the vehicle. |
+| `user_id` | int | Foreign Key to `users.id` | The owner of the vehicle. |
+| `current_latitude` | varchar(100) | | The last known latitude of the vehicle. |
+| `current_longitude` | varchar(100) | | The last known longitude of the vehicle. |
+| `vehicle_plate` | varchar(10) | | The license plate of the vehicle. |
+
+***
+
+### **Table: `traffic_emergency_request`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `emergency_request` | int | Primary Key, Auto-increment | Unique identifier for the emergency request. |
+| `user_id` | int | Foreign Key to `users.id` | The user who initiated the request. |
+| `accident_latitude` | varchar(100) | | The latitude of the accident. |
+| `accident_longitude` | varchar(100) | | The longitude of the accident. |
+| `destination_hospital` | varchar(255) | | The name of the destination hospital. |
+| `status` | traffic_emergency_status | | The status of the request. |
+| `ambulance_id` | int | Foreign Key to `vehicle.vehicle_id` | The ambulance/vehicle involved in the emergency. |
 
 ---
 
-### Table: `traffic_light`
-Stores the state and properties of individual traffic lights.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `light_id` | `int` | **Primary Key** | Unique identifier for the traffic light. |
-| `latitude` | `varchar(100)` | | The latitude coordinate of the traffic light. |
-| `longitude` | `varchar(100)` | | The longitude coordinate of the traffic light. |
-| `status` | `boolean` | | The operational status (on/off). |
-| `current_color` | `int` | | The current color of the light (e.g., represented by an integer). |
-| `density_level` | `int` | | The level of traffic density detected. |
-| `auto_mode` | `boolean` | | A flag indicating if the light is in automatic mode. |
-| `last_updated` | `timestamp` | | Timestamp of the last status update. |
-
-### Table: `intersection`
-Stores the geographic locations of road intersections.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `intersection_id` | `int` | **Primary Key** | Unique identifier for the intersection. |
-| `latitude` | `varchar(100)` | | The latitude coordinate of the intersection. |
-| `longitude` | `varchar(100)` | | The longitude coordinate of the intersection. |
-
-### Table: `light_request`
-Logs requests made to a specific traffic light.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `request_id` | `int` | **Primary Key** | Unique identifier for the request. |
-| `light_id` | `int` | **Foreign Key** (`traffic_light.light_id`) | The ID of the traffic light being requested. |
-| `request_time` | `timestamp` | | The timestamp of the request. |
-
-### Table: `road`
-Defines road segments by connecting intersections and associating them with traffic lights.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `road_id` | `int` | **Primary Key** | Unique identifier for the road segment. |
-| `light_id` | `int` | **Foreign Key** (`traffic_light.light_id`) | The traffic light associated with this road. |
-| `intersection_id_start` | `int` | **Foreign Key** (`intersection.intersection_id`) | The starting intersection of the road. |
-| `intersection_id_end` | `int` | **Foreign Key** (`intersection.intersection_id`) | The ending intersection of the road. |
-| `length` | `int` | | The length of the road segment. |
-
-### Table: `traffic_emergency_request`
-Stores requests for emergency vehicle passage through traffic.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `emergency_request` | `int` | **Primary Key** | Unique identifier for the emergency request. |
-| `user_id` | `int` | **Foreign Key** (`users.id`) | The user (e.g., paramedic) making the request. |
-| `accident_latitude` | `varchar(100)` | | The latitude of the accident location. |
-| `accident_longitude` | `varchar(100)` | | The longitude of the accident location. |
-| `destination_hospital` | `varchar(255)`| | The name or address of the destination hospital. |
-| `status` | `traffic_emergency_status` (Enum) | | The status of the request (`active`, `resolve`). |
-| `ambulance_id` | `int` | **Foreign Key** (`vehicle.vehicle_id`) | The ID of the ambulance making the request. |
-
-### Table: `vehicle`
-Tracks vehicles, such as ambulances, in the system.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `vehicle_id` | `int` | **Primary Key** | Unique identifier for the vehicle. |
-| `user_id` | `int` | **Foreign Key** (`users.id`) | The user associated with the vehicle. |
-| `current_latitude` | `varchar(100)` | | The vehicle's current latitude. |
-| `current_longitude` | `varchar(100)` | | The vehicle's current longitude. |
-| `vehicle_plate` | `varchar(10)` | | The vehicle's license plate number. |
-
-
----
 ## G11: Financial
 
-This group manages user wallets, financial cards, and transactions.
+This module handles user wallets and transactions for various city services.
+
+### **Enum: `wallet_type`**
+
+* `individual`
+* `organization`
+
+***
+
+### **Enum: `wallet_status`**
+
+* `active`
+* `suspended`
+
+***
+
+### **Table: `wallets`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `wallet_id` | int | Primary Key, Auto-increment | Unique identifier for the wallet. |
+| `owner_id` | int | Unique, Foreign Key to `users.id` | The user ID of the wallet owner. |
+| `wallet_type` | wallet_type | | The type of wallet. |
+| `organization_type` | varchar(100) | | If it's an organization wallet, specifies the type. |
+| `balance` | decimal | Default: 0.0 | The current balance of the wallet. |
+| `status` | wallet_status | | The current status of the wallet. |
+| `created_at` | timestamp | | Timestamp of when the wallet was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the wallet. |
+
+***
+
+### **Enum: `transaction_type`**
+
+* `top_up`
+* `transfer_in`
+* `transfere_out`
+* `transfer_to_service`
+
+***
+
+### **Enum: `target_services`**
+
+* `insurance`
+* `metro`
+* `null`
+
+***
+
+### **Table: `wallet_transactions`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `transaction_id` | int | Primary Key, Auto-increment | Unique identifier for the transaction. |
+| `wallet_id` | int | Foreign Key to `wallets.wallet_id` | The wallet involved in the transaction. |
+| `transaction_type` | transaction_type | | The type of transaction. |
+| `amount` | decimal | | The amount of the transaction. |
+| `target_wallet_id` | int | | The ID of the other wallet in a transfer. |
+| `target_service` | target_services | | The service being paid for. |
+| `description` | varchar(255) | | A description of the transaction. |
+| `created_at` | timestamp | | Timestamp of when the transaction occurred. |
+
+***
+
+### **Table: `insurance_cards`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `card_id` | int | Primary Key, Auto-increment | Unique identifier for the insurance card. |
+| `citizen_id` | int | Foreign Key to `users.id` | The user associated with the card. |
+| `balance` | decimal | Default: 0.0 | The current balance on the card. |
+| `card_number` | int | Unique | The unique number of the card. |
+| `status` | wallet_status | | The status of the card. |
+| `created_at` | timestamp | | Timestamp of when the card was issued. |
+| `updated_at` | timestamp | | Timestamp of the last update to the card. |
+
+***
+
+### **Table: `metro_cards`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `card_id` | int | Primary Key, Auto-increment | Unique identifier for the metro card. |
+| `citizen_id` | int | Foreign Key to `users.id` | The user associated with the card. |
+| `balance` | decimal | Default: 0.0 | The current balance on the card. |
+| `card_number` | int | Unique | The unique number of the card. |
+| `status` | wallet_status | | The status of the card. |
+| `created_at` | timestamp | | Timestamp of when the card was issued. |
+| `updated_at` | timestamp | | Timestamp of the last update to the card. |
+
+***
+
+### **Enum: `card_transaction_type`**
+
+* `top_up`
+* `charge`
+* `refund`
+
+***
+
+### **Enum: `transaction_category`**
+
+* `insurance`
+* `metro`
+
+***
+
+### **Table: `transaction`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `transaction_id` | int | Primary Key, Auto-increment | Unique identifier for the transaction. |
+| `card_id` | int | Foreign Key to `insurance_cards.card_id` | The ID of the card used in the transaction. |
+| `transaction_type` | card_transaction_type | | The type of card transaction. |
+| `transaction_category` | transaction_category | | The category of the transaction. |
+| `reference` | varchar(50) | | A reference code for the transaction. |
+| `amount` | decimal | Default: 0.0 | The amount of the transaction. |
+| `description` | varchar(255) | | A description of the transaction. |
+| `created_at` | timestamp | | Timestamp of when the transaction occurred. |
 
 ---
 
-### Table: `wallets`
-Stores user or organization digital wallets.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `wallet_id` | `int` | **Primary Key** | Unique identifier for the wallet. |
-| `owner_id` | `int` | `UNIQUE`, **Foreign Key** (`users.id`) | The ID of the user who owns the wallet. |
-| `wallet_type` | `wallet_type` (Enum) | | The type of wallet (`individual`, `organization`). |
-| `organization_type` | `varchar(100)`| | The type of organization, if applicable. |
-| `balance` | `decimal` | `DEFAULT: 0.0` | The current balance of the wallet. |
-| `status` | `wallet_status` (Enum) | | The status of the wallet (`active`, `suspended`). |
-| `created_at` | `timestamp` | | Timestamp of when the wallet was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `wallet_transactions`
-Logs all transactions associated with wallets.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `transaction_id`| `int` | **Primary Key** | Unique identifier for the transaction. |
-| `wallet_id` | `int` | **Foreign Key** (`wallets.wallet_id`) | The wallet involved in the transaction. |
-| `transaction_type` | `transaction_type` (Enum) | | The type of transaction (`top_up`, `transfer_in`, etc.). |
-| `amount` | `decimal` | | The amount of the transaction. |
-| `target_wallet_id`| `int` | | The ID of the recipient wallet in a transfer. |
-| `target_service`| `target_services` (Enum) | | The service the payment is for (`insurance`, `metro`). |
-| `description` | `varchar(255)` | | A description of the transaction. |
-| `created_at` | `timestamp` | | Timestamp of when the transaction occurred. |
-
-### Table: `insurance_cards`
-Stores details about user insurance cards.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `card_id` | `int` | **Primary Key** | Unique identifier for the insurance card. |
-| `citizen_id` | `int` | **Foreign Key** (`users.id`) | The user associated with the card. |
-| `balance` | `decimal` | `DEFAULT: 0.0` | The current balance on the card. |
-| `card_number` | `int` | `UNIQUE` | The unique number of the insurance card. |
-| `status` | `wallet_status` (Enum) | | The status of the card (`active`, `suspended`). |
-| `created_at` | `timestamp` | | Timestamp of when the card was issued. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `metro_cards`
-Stores details about user metro/transit cards.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `card_id` | `int` | **Primary Key** | Unique identifier for the metro card. |
-| `citizen_id` | `int` | **Foreign Key** (`users.id`) | The user associated with the card. |
-| `balance` | `decimal` | `DEFAULT: 0.0` | The current balance on the card. |
-| `card_number` | `int` | `UNIQUE` | The unique number of the metro card. |
-| `status` | `wallet_status` (Enum) | | The status of the card (`active`, `suspended`). |
-| `created_at` | `timestamp` | | Timestamp of when the card was issued. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `transaction`
-A general table for logging transactions from various card types.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `transaction_id`| `int` | **Primary Key** | Unique identifier for the transaction. |
-| `card_id` | `int` | **Foreign Key** (`insurance_cards.card_id`, etc.) | The ID of the card used for the transaction. |
-| `transaction_type` | `card_transaction_type` (Enum) | | The type of transaction (`top_up`, `charge`, `refund`). |
-| `transaction_category` | `transaction_category` (Enum) | | The category of the transaction (`insurance`, `metro`). |
-| `reference` | `varchar(50)` | | A reference code for the transaction. |
-| `amount` | `decimal` | `DEFAULT: 0.0` | The amount of the transaction. |
-| `description` | `varchar(255)` | | A description of the transaction. |
-| `created_at` | `timestamp` | | Timestamp of when the transaction occurred. |
-
----
 ## G12: Healthcare
 
-This group manages a comprehensive healthcare system including patients, facilities, appointments, and emergencies.
+This module manages healthcare services, facilities, patients, and emergencies.
+
+### **Table: `patients`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `patient_id` | int | Primary Key, Auto-increment | Unique identifier for the patient record. |
+| `user_id` | int | Foreign Key to `users.id` | Link to the user account associated with this patient. |
+| `emergency_contact` | varchar(200) | | Contact information for the patient's emergency contact. |
+| `finance_id` | int | | Identifier for linking to a financial system. |
+| `housing_id` | int | | Identifier for linking to a housing system. |
+| `sos_id` | int | | Identifier for linking to an emergency (SOS) system. |
+| `created_at` | timestamp | | Timestamp of when the patient record was created. |
+
+***
+
+### **Table: `facilities`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `facility_id` | int | Primary Key, Auto-increment | Unique identifier for the healthcare facility. |
+| `name` | varchar(255) | | The name of the facility. |
+| `type` | varchar(50) | | The type of facility (e.g., 'Hospital', 'Clinic'). |
+| `province` | varchar(255) | | The province of the facility. |
+| `district` | varchar(255) | | The district of the facility. |
+| `subdistrict` | varchar(255) | | The subdistrict of the facility. |
+| `zip_code` | varchar(20) | | The postal code of the facility. |
+| `more_address_detail` | text | | Additional address details for the facility. |
+| `phone` | varchar(20) | | The contact phone number for the facility. |
+| `latitude` | decimal(10,8) | | The geographical latitude of the facility. |
+| `longitude` | decimal(11,8) | | The geographical longitude of the facility. |
+| `emergency_services` | boolean | | Flag indicating if the facility offers emergency services. |
+| `finance_merchant_id` | int | | Merchant ID for financial transactions. |
+| `housing_zone` | varchar(100) | | Housing zone the facility serves. |
+| `sos_code` | varchar(50) | | Code for the emergency (SOS) system. |
+| `department_id` | int | Foreign Key to `departments.id` | The department associated with the facility. |
+| `created_at` | timestamp | | Timestamp of when the facility record was created. |
+
+***
+
+### **Table: `beds`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `bed_id` | int | Primary Key, Auto-increment | Unique identifier for a bed. |
+| `facility_id` | int | Foreign Key to `facilities.facility_id` | The facility where the bed is located. |
+| `bed_number` | varchar(20) | | The number or identifier of the bed. |
+| `bed_type` | varchar(50) | | The type of bed (e.g., 'ICU', 'General Ward'). |
+| `status` | varchar(20) | | The current status of the bed (e.g., 'Available', 'Occupied'). |
+| `patient_id` | int | Foreign Key to `patients.patient_id` | The ID of the patient occupying the bed. |
+| `admission_date` | timestamp | | The date and time of patient admission to the bed. |
+| `finance_billing_id` | int | | ID for financial billing. |
+| `sos_priority` | integer | | Priority level in the emergency (SOS) system. |
+
+***
+
+### **Table: `appointments`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `appointment_id` | int | Primary Key, Auto-increment | Unique identifier for the appointment. |
+| `patient_id` | int | Foreign Key to `patients.patient_id` | The patient who has the appointment. |
+| `facility_id` | int | Foreign Key to `facilities.facility_id` | The facility where the appointment is scheduled. |
+| `user_id` | int | Foreign Key to `users.id` | The healthcare provider (user) for the appointment. |
+| `appointment_datetime` | timestamp | | The date and time of the appointment. |
+| `type` | varchar(50) | | The type of appointment (e.g., 'Consultation', 'Check-up'). |
+| `status` | varchar(20) | | The status of the appointment (e.g., 'Scheduled', 'Completed'). |
+| `finance_payment_id` | int | | ID for financial payment. |
+| `housing_transport_id` | int | | ID for housing transport service. |
+| `sos_emergency` | boolean | | Flag indicating if this is an emergency appointment. |
+| `created_at` | timestamp | | Timestamp of when the appointment was created. |
+
+***
+
+### **Table: `prescriptions`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `prescription_id` | int | Primary Key, Auto-increment | Unique identifier for the prescription. |
+| `patient_id` | int | Foreign Key to `patients.patient_id` | The patient for whom the prescription is intended. |
+| `user_id` | int | Foreign Key to `users.id` | The healthcare provider (user) who issued the prescription. |
+| `facility_id` | int | Foreign Key to `facilities.facility_id` | The facility that issued the prescription. |
+| `medication_name` | varchar(255) | | The name of the medication. |
+| `quantity` | integer | | The prescribed quantity. |
+| `status` | varchar(20) | | The status of the prescription (e.g., 'Filled', 'Pending'). |
+| `finance_payment_id` | int | | ID for financial payment. |
+| `housing_delivery_id` | int | | ID for housing delivery service. |
+| `sos_critical` | boolean | | Flag indicating if this is a critical prescription. |
+| `created_at` | timestamp | | Timestamp of when the prescription was created. |
+
+***
+
+### **Table: `ambulances`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `ambulance_id` | int | Primary Key, Auto-increment | Unique identifier for the ambulance. |
+| `vehicle_number` | varchar(50) | | The license plate or vehicle number. |
+| `status` | varchar(20) | | Current status (e.g., 'Available', 'On-call'). |
+| `current_latitude` | decimal(10,8) | | The current geographical latitude of the ambulance. |
+| `current_longitude` | decimal(11,8) | | The current geographical longitude of the ambulance. |
+| `base_facility_id` | int | Foreign Key to `facilities.facility_id` | The home base facility for the ambulance. |
+| `finance_rate` | decimal(10,2) | | The rate for financial billing. |
+| `housing_coverage_zones` | json | | JSON object defining the service coverage zones. |
+| `sos_priority` | integer | | Priority level in the emergency (SOS) system. |
+| `created_at` | timestamp | | Timestamp of when the ambulance record was created. |
+
+***
+
+### **Table: `emergency_calls`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `emergency_id` | int | Primary Key, Auto-increment | Unique identifier for the emergency call. |
+| `patient_id` | int | Foreign Key to `patients.patient_id` | The patient associated with the call (if known). |
+| `caller_phone` | varchar(20) | | The phone number of the person who made the call. |
+| `emergency_type` | varchar(50) | | The type of emergency (e.g., 'Cardiac Arrest', 'Accident'). |
+| `severity` | varchar(20) | | The severity level of the emergency. |
+| `province` | varchar(255) | | The province of the emergency location. |
+| `district` | varchar(255) | | The district of the emergency location. |
+| `subdistrict` | varchar(255) | | The subdistrict of the emergency location. |
+| `zip_code` | varchar(20) | | The postal code of the emergency location. |
+| `more_address_detail` | text | | Additional address details for the emergency location. |
+| `ambulance_id` | int | Foreign Key to `ambulances.ambulance_id` | The ambulance dispatched to the emergency. |
+| `facility_id` | int | Foreign Key to `facilities.facility_id` | The destination facility for the patient. |
+| `status` | varchar(20) | | The status of the emergency call (e.g., 'Active', 'Resolved'). |
+| `finance_billing_id` | int | | ID for financial billing. |
+| `housing_unit` | varchar(100) | | Housing unit associated with the location. |
+| `sos_incident_id` | int | | Incident ID from the emergency (SOS) system. |
+| `created_at` | timestamp | | Timestamp of when the call was logged. |
+
+***
+
+### **Table: `payments`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `payment_id` | int | Primary Key, Auto-increment | Unique identifier for the payment. |
+| `patient_id` | int | Foreign Key to `patients.patient_id` | The patient making the payment. |
+| `facility_id` | int | Foreign Key to `facilities.facility_id` | The facility receiving the payment. |
+| `service_type` | varchar(50) | | The type of service being paid for. |
+| `service_id` | int | | The ID of the specific service record. |
+| `amount` | decimal(10,2) | | The total amount of the payment. |
+| `currency` | varchar(3) | | The currency of the payment (e.g., 'THB'). |
+| `payment_method` | varchar(50) | | The method of payment (e.g., 'Credit Card', 'Wallet'). |
+| `insurance_coverage` | decimal(10,2) | | The amount covered by insurance. |
+| `patient_copay` | decimal(10,2) | | The amount paid by the patient. |
+| `status` | varchar(20) | | The status of the payment (e.g., 'Paid', 'Pending'). |
+| `payment_date` | timestamp | | The date and time the payment was made. |
+| `finance_transaction_id` | int | | Transaction ID from the financial system. |
+| `insurance_claim_id` | int | | Claim ID from the insurance system. |
+| `created_at` | timestamp | | Timestamp of when the payment record was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the payment record. |
+
+***
+
+### **Table: `team_integrations`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `integration_id` | int | Primary Key, Auto-increment | Unique identifier for the integration record. |
+| `team_name` | varchar(50) | | The name of the external team/system. |
+| `healthcare_table` | varchar(50) | | The table in this database being linked. |
+| `healthcare_id` | varchar | | The ID from the healthcare table. |
+| `external_id` | varchar(100) | | The corresponding ID in the external system. |
+| `data_type` | varchar(50) | | The type of data being integrated. |
+| `status` | varchar(20) | | The status of the integration link. |
+| `additional_data` | json | | Additional data related to the integration. |
+| `created_at` | timestamp | | Timestamp of when the integration link was created. |
 
 ---
 
-### Table: `patients`
-Stores information about patients, linking them to users.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `patient_id` | `int` | **Primary Key** | Unique identifier for the patient. |
-| `user_id` | `int` | **Foreign Key** (`users.id`) | The corresponding user account for the patient. |
-| `emergency_contact` | `varchar(200)`| | Information for the patient's emergency contact. |
-| `finance_id` | `int` | | ID for linking to a financial system. |
-| `housing_id` | `int` | | ID for linking to a housing system. |
-| `sos_id` | `int` | | ID for linking to an emergency (SOS) system. |
-| `created_at` | `timestamp` | | Timestamp of when the patient record was created. |
-
-### Table: `facilities`
-Stores information about healthcare facilities like hospitals and clinics.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `facility_id` | `int` | **Primary Key** | Unique identifier for the facility. |
-| `name` | `varchar(255)` | | The name of the facility. |
-| `type` | `varchar(50)` | | The type of facility (e.g., 'Hospital', 'Clinic'). |
-| `address` | `text` | | The address of the facility. |
-| `phone` | `varchar(20)` | | The contact phone number for the facility. |
-| `latitude` | `decimal(10,8)`| | The latitude coordinate of the facility. |
-| `longitude` | `decimal(11,8)`| | The longitude coordinate of the facility. |
-| `emergency_services` | `boolean` | | A flag indicating if emergency services are available. |
-| `finance_merchant_id` | `int` | | Merchant ID for financial transactions. |
-| `housing_zone` | `varchar(100)`| | Zone information for housing/logistics. |
-| `sos_code` | `varchar(50)` | | Code for the emergency (SOS) system. |
-| `department_id` | `int` | **Foreign Key** (`departments.id`) | Associated department ID. |
-| `created_at` | `timestamp` | | Timestamp of when the record was created. |
-
-### Table: `beds`
-Manages hospital bed allocation and status.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `bed_id` | `int` | **Primary Key** | Unique identifier for the bed. |
-| `facility_id` | `int` | **Foreign Key** (`facilities.facility_id`) | The facility where the bed is located. |
-| `bed_number` | `varchar(20)` | | The number or identifier of the bed. |
-| `bed_type` | `varchar(50)` | | The type of bed (e.g., 'ICU', 'General'). |
-| `status` | `varchar(20)` | | The current status of the bed (e.g., 'occupied', 'available'). |
-| `patient_id` | `int` | **Foreign Key** (`patients.patient_id`) | The patient currently occupying the bed. |
-| `admission_date` | `timestamp` | | The date and time of admission. |
-| `finance_billing_id` | `int` | | ID for linking to billing systems. |
-| `sos_priority` | `integer` | | Priority level for emergency systems. |
-
-### Table: `appointments`
-Tracks patient appointments with healthcare providers.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `appointment_id`| `int` | **Primary Key** | Unique identifier for the appointment. |
-| `patient_id` | `int` | **Foreign Key** (`patients.patient_id`) | The patient for whom the appointment is scheduled. |
-| `facility_id` | `int` | **Foreign Key** (`facilities.facility_id`) | The facility where the appointment will take place. |
-| `user_id` | `int` | **Foreign Key** (`users.id`) | The healthcare provider (user) for the appointment. |
-| `appointment_datetime` | `timestamp` | | The scheduled date and time of the appointment. |
-| `type` | `varchar(50)` | | The type of appointment (e.g., 'Consultation', 'Check-up'). |
-| `status` | `varchar(20)` | | The status of the appointment (e.g., 'Scheduled', 'Completed'). |
-| `finance_payment_id` | `int` | | ID for linking to payment systems. |
-| `housing_transport_id` | `int` | | ID for linking to transport/housing systems. |
-| `sos_emergency` | `boolean` | | A flag indicating if it is an emergency appointment. |
-| `created_at` | `timestamp` | | Timestamp of when the appointment was created. |
-
-### Table: `prescriptions`
-Stores medication prescriptions for patients.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `prescription_id` | `int` | **Primary Key** | Unique identifier for the prescription. |
-| `patient_id` | `int` | **Foreign Key** (`patients.patient_id`) | The patient the prescription is for. |
-| `user_id` | `int` | **Foreign Key** (`users.id`) | The healthcare provider who issued the prescription. |
-| `facility_id` | `int` | **Foreign Key** (`facilities.facility_id`) | The facility where the prescription was issued. |
-| `medication_name` | `varchar(255)`| | The name of the medication. |
-| `quantity` | `integer` | | The prescribed quantity. |
-| `status` | `varchar(20)` | | The status of the prescription (e.g., 'filled', 'pending'). |
-| `finance_payment_id` | `int` | | ID for linking to payment systems. |
-| `housing_delivery_id` | `int` | | ID for linking to delivery/housing systems. |
-| `sos_critical` | `boolean` | | A flag indicating if the medication is critical. |
-| `created_at` | `timestamp` | | Timestamp of when the prescription was created. |
-
-### Table: `ambulances`
-Tracks the status and location of ambulances.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `ambulance_id` | `int` | **Primary Key** | Unique identifier for the ambulance. |
-| `vehicle_number`| `varchar(50)` | | The license plate or vehicle number. |
-| `status` | `varchar(20)` | | The current status (e.g., 'available', 'en-route'). |
-| `current_latitude` | `decimal(10,8)`| | The current latitude of the ambulance. |
-| `current_longitude` | `decimal(11,8)`| | The current longitude of the ambulance. |
-| `base_facility_id` | `int` | **Foreign Key** (`facilities.facility_id`) | The home base facility of the ambulance. |
-| `finance_rate` | `decimal(10,2)`| | The billing rate for the ambulance service. |
-| `housing_coverage_zones` | `json` | | The service coverage zones. |
-| `sos_priority` | `integer` | | The priority level in an emergency. |
-| `created_at` | `timestamp` | | Timestamp of when the ambulance record was created. |
-
-### Table: `emergency_calls`
-Logs incoming emergency calls and dispatch information.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `emergency_id` | `int` | **Primary Key** | Unique identifier for the emergency call. |
-| `patient_id` | `int` | **Foreign Key** (`patients.patient_id`) | The patient associated with the call, if known. |
-| `caller_phone` | `varchar(20)` | | The phone number of the person who called. |
-| `emergency_type`| `varchar(50)` | | The type of emergency (e.g., 'Cardiac Arrest', 'Accident'). |
-| `severity` | `varchar(20)` | | The severity level of the emergency. |
-| `location_address` | `text` | | The address of the emergency location. |
-| `ambulance_id` | `int` | **Foreign Key** (`ambulances.ambulance_id`) | The ambulance dispatched to the scene. |
-| `facility_id` | `int` | **Foreign Key** (`facilities.facility_id`) | The destination facility. |
-| `status` | `varchar(20)` | | The status of the emergency call (e.g., 'dispatched', 'resolved'). |
-| `finance_billing_id` | `int` | | ID for linking to billing systems. |
-| `housing_unit`| `varchar(100)`| | Unit information for housing/logistics. |
-| `sos_incident_id` | `int` | | The incident ID from the emergency (SOS) system. |
-| `created_at` | `timestamp` | | Timestamp of when the call was received. |
-
-### Table: `payments`
-Stores records of payments for healthcare services.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `payment_id` | `int` | **Primary Key** | Unique identifier for the payment. |
-| `patient_id` | `int` | **Foreign Key** (`patients.patient_id`) | The patient making the payment. |
-| `facility_id` | `int` | **Foreign Key** (`facilities.facility_id`) | The facility receiving the payment. |
-| `service_type` | `varchar(50)` | | The type of service paid for (e.g., 'Appointment', 'Prescription'). |
-| `service_id` | `int` | | The ID of the specific service record. |
-| `amount` | `decimal(10,2)`| | The total amount of the payment. |
-| `currency` | `varchar(3)` | | The currency of the payment (e.g., 'THB'). |
-| `payment_method`| `varchar(50)` | | The method of payment (e.g., 'Credit Card', 'Wallet'). |
-| `insurance_coverage` | `decimal(10,2)`| | The amount covered by insurance. |
-| `patient_copay`| `decimal(10,2)`| | The co-payment amount paid by the patient. |
-| `status` | `varchar(20)` | | The status of the payment (e.g., 'completed', 'pending'). |
-| `payment_date` | `timestamp` | | The date and time of the payment. |
-| `finance_transaction_id`| `int` | | The transaction ID from the financial system. |
-| `insurance_claim_id` | `int` | | The claim ID from the insurance system. |
-| `created_at` | `timestamp` | | Timestamp of when the payment record was created. |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-
-### Table: `team_integrations`
-Manages integrations with external systems or teams.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `integration_id`| `int` | **Primary Key** | Unique identifier for the integration. |
-| `team_name` | `varchar(50)` | | The name of the integrated team (e.g., 'Finance', 'Housing'). |
-| `healthcare_table` | `varchar(50)` | | The healthcare table being linked. |
-| `healthcare_id` | `varchar` | | The ID from the healthcare table. |
-| `external_id` | `varchar(100)`| | The corresponding ID in the external system. |
-| `data_type` | `varchar(50)` | | The type of data being integrated. |
-| `status` | `varchar(20)` | | The status of the integration link. |
-| `additional_data`| `json` | | Additional data stored in JSON format. |
-| `created_at` | `timestamp` | | Timestamp of when the integration was created. |
-
----
 ## G13: Emergency Reports
 
-This group is dedicated to user-submitted emergency reports, alerts, and secure messaging.
+This module allows users to report emergencies and communicate.
+
+### **Enum: `level`**
+
+Severity levels for reports.
+
+* `near_miss`
+* `minor`
+* `moderate`
+* `major`
+* `lethal`
+
+***
+
+### **Enum: `report_status`**
+
+* `pending`
+* `verified`
+* `resolved`
+
+***
+
+### **Enum: `report_category`**
+
+* `traffic`
+* `disaster`
+* `crime`
+
+***
+
+### **Table: `reports`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `report_id` | int | Primary Key, Auto-increment, Not Null | Unique identifier for the report. |
+| `user_id` | int | Not Null, Foreign Key to `users.id` | The user who submitted the report. |
+| `image` | varchar(255) | Not Null | URL of the image associated with the report. |
+| `description` | varchar(255) | Not Null | A description of the incident. |
+| `latitude` | varchar(255) | Not Null | The latitude of the incident location. |
+| `longitude` | varchar(255) | Not Null | The longitude of the incident location. |
+| `level` | level | | The severity level of the incident. |
+| `status` | report_status | | The current status of the report. |
+| `category` | report_category | | The category of the report. |
+| `updated_at` | timestamp | | Timestamp of the last update to the report. |
+| `created_at` | timestamp | | Timestamp of when the report was created. |
+
+***
+
+### **Table: `emergency_contacts`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `contact_id` | int | Primary Key, Auto-increment, Not Null | Unique identifier for the contact. |
+| `user_id` | int | Not Null, Foreign Key to `users.id` | The user who owns this contact entry. |
+| `contact_name` | varchar(255) | Not Null | The name of the emergency contact. |
+| `phone` | varchar(10) | | The phone number of the emergency contact. |
+
+***
+
+### **Table: `alerts`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `alert_id` | int | Primary Key, Auto-increment, Not Null | Unique identifier for the alert. |
+| `report_id` | int | Not Null, Foreign Key to `reports.report_id` | The report that triggered the alert. |
+| `message` | text | Not Null | The content of the alert message. |
+| `area` | varchar(255) | | The geographical area the alert pertains to. |
+| `sent_at` | timestamp | | Timestamp of when the alert was sent. |
+
+***
+
+### **Table: `users_contacts`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `contact_id` | int | Primary Key, Auto-increment, Not Null | Unique identifier for the contact link. |
+| `user_id` | int | Not Null, Foreign Key to `users.id` | The user who owns the contact entry. |
+| `contact_user_id` | int | Not Null, Foreign Key to `users.id` | The user who is the emergency contact. |
+
+***
+
+### **Table: `conversations`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `conversation_id` | int | Primary Key, Auto-increment, Not Null | Unique identifier for the conversation. |
+| `conversation_name` | varchar(255) | | The name or title of the conversation. |
+
+***
+
+### **Table: `messages`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `message_id` | int | Primary Key, Auto-increment, Not Null | Unique identifier for the message. |
+| `sender_id` | int | Not Null, Foreign Key to `users.id` | The user who sent the message. |
+| `recipient_id` | int | Not Null, Foreign Key to `users.id` | The user who received the message. |
+| `message_text` | text | | The content of the message. |
+| `sent_at` | timestamp | | Timestamp of when the message was sent. |
+| `conversation_id` | int | Not Null, Foreign Key to `conversations.conversation_id` | The conversation this message belongs to. |
 
 ---
 
-### Table: `reports`
-Stores emergency reports submitted by users.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `report_id` | `int` | `NOT NULL`, **Primary Key** | Unique identifier for the report. |
-| `user_id` | `int` | `NOT NULL`, **Foreign Key** (`users.id`) | The user who submitted the report. |
-| `image` | `varchar(255)` | `NOT NULL` | URL or path to an image of the incident. |
-| `description` | `varchar(255)` | `NOT NULL` | A description of the incident. |
-| `latitude` | `varchar(255)` | `NOT NULL` | The latitude of the incident location. |
-| `longitude` | `varchar(255)` | `NOT NULL` | The longitude of the incident location. |
-| `level` | `level` (Enum) | | The severity level of the report (`minor`, `major`, etc.). |
-| `status` | `report_status` (Enum) | | The status of the report (`pending`, `verified`, `resolved`). |
-| `category` | `report_category` (Enum) | | The category of the report (`traffic`, `disaster`, `crime`). |
-| `updated_at` | `timestamp` | | Timestamp of the last update. |
-| `created_at` | `timestamp` | | Timestamp of when the report was created. |
-
-### Table: `emergency_contacts`
-Stores a user's designated emergency contacts.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `contact_id` | `int` | `NOT NULL`, **Primary Key** | Unique identifier for the emergency contact. |
-| `user_id` | `int` | `NOT NULL`, **Foreign Key** (`users.id`) | The user to whom this contact belongs. |
-| `contact_name` | `varchar(255)` | `NOT NULL` | The name of the emergency contact person. |
-| `phone` | `varchar(10)` | | The phone number of the contact person. |
-
-### Table: `alerts`
-Stores alerts that are sent out based on verified reports.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `alert_id` | `int` | `NOT NULL`, **Primary Key** | Unique identifier for the alert. |
-| `report_id` | `int` | `NOT NULL` | The report that triggered this alert. |
-| `message` | `text` | `NOT NULL` | The content of the alert message. |
-| `area` | `varchar(255)` | | The geographical area the alert is targeted to. |
-| `sent_at` | `timestamp` | | The timestamp of when the alert was sent. |
-
-### Table: `users_contacts`
-A list of contacts (other users) that a user has saved.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `contact_id` | `int` | `NOT NULL`, **Primary Key** | Unique identifier for the contact entry. |
-| `user_id` | `int` | `NOT NULL`, **Foreign Key** (`users.id`) | The user who owns the contact list. |
-| `contact_user_id` | `int` | `NOT NULL`, **Foreign Key** (`users.id`) | The user who is saved as a contact. |
-
-### Table: `messages`
-Stores individual messages between users.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `message_id` | `int` | `NOT NULL`, **Primary Key** | Unique identifier for the message. |
-| `sender_id` | `int` | `NOT NULL`, **Foreign Key** (`users.id`) | The user who sent the message. |
-| `recipient_id` | `int` | `NOT NULL`, **Foreign Key** (`users.id`) | The user who received the message. |
-| `message_text`| `text` | | The content of the message. |
-| `sent_at` | `timestamp` | | The timestamp of when the message was sent. |
-| `conversation_id` | `int` | `NOT NULL`, **Foreign Key** (`conversations.conversation_id`) | The conversation this message belongs to. |
-
-### Table: `conversations`
-Groups messages into conversations.
-
-| Field | Data Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `conversation_id` | `int` | `NOT NULL`, **Primary Key** | Unique identifier for the conversation. |
-| `conversation_name` | `varchar(255)`| | The name or title of the conversation. |
-
 ## G15: Waste Management
-This group manages waste collection data from events.
+
+This module tracks waste collection data for events.
+
+### **Table: `waste_type`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the waste type. |
+| `type_name` | varchar(255) | | The name of the waste type (e.g., 'Recyclable', 'General'). |
+| `weight` | decimal | | Standard or average weight for this type. |
+
 ***
-### Table: `waste_type`
-Defines different types of waste.
 
-| Field | Data Type | Constraints | Description |
+### **Table: `waste_event_statistic`**
+
+| Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the waste type. |
-| `type_name` | `varchar(255)` | | Name of the waste type (e.g., 'Plastic', 'Glass'). |
-| `weight` | `decimal` | | Standard weight reference if applicable. |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the statistic record. |
+| `event_id` | int | Foreign Key to `event.id` | The event where the waste was collected. |
+| `waste_type_id` | int | Foreign Key to `waste_type.id` | The type of waste collected. |
+| `collection_date` | timestamp | | The date of collection. |
+| `total_collection_weight` | decimal | | The total weight of waste collected. |
 
-### Table: `waste_event_statistic`
-Stores waste collection statistics from events.
+***
 
-| Field | Data Type | Constraints | Description |
+### **Table: `power_bi_report`**
+
+| Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the statistic record. |
-| `event_id` | `int` | **Foreign Key** (`event.id`) | The event where the waste was collected. |
-| `waste_type_id` | `int` | **Foreign Key** (`waste_type.id`) | The type of waste collected. |
-| `collection_date`| `timestamp` | | The date of collection. |
-| `total_collection_weight` | `decimal` | | The total weight collected for this type. |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the report record. |
+| `waste_event_statistic_id` | int | Foreign Key to `waste_event_statistic.id` | The statistic record this report is based on. |
+| `report_type` | varchar(255) | | The type of the report. |
+| `report_date` | timestamp | | The date the report was generated. |
 
-### Table: `power_bi_report`
-Links waste statistics to a Power BI report entry.
+---
 
-| Field | Data Type | Constraints | Description |
+## G16: Community Map
+
+This module manages custom map markers for a community map.
+
+### **Table: `marker_type`**
+
+| Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `int` | **Primary Key**, Auto-Increment | Unique identifier for the report link. |
-| `waste_event_statistic_id` | `int` | **Foreign Key** (`waste_event_statistic.id`) | Link to the specific waste statistic record. |
-| `report_type` | `varchar(255)` | | The type or name of the report. |
-| `report_date` | `timestamp` | | The date the report was generated. |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the marker type. |
+| `marker_icon` | varchar(255) | | The icon used for the marker. |
+| `marker_color` | varchar(255) | | The color of the marker. |
+| `created_at` | timestamp | | Timestamp of when the marker type was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the marker type. |
 
+***
+
+### **Table: `map_marker`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the map marker. |
+| `marker_type_id` | int | Foreign Key to `marker_type.id` | The type of this marker. |
+| `display_name` | varchar(255) | | The name displayed for the marker. |
+| `description` | varchar(255) | | A description for the marker. |
+| `created_at` | timestamp | | Timestamp of when the marker was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the marker.
