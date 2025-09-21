@@ -138,6 +138,7 @@ Enum course_types {
 
 Table courses {
   id int [pk, increment]
+  author_id int [ref: > users.id]
   course_name varchar(255) [not null]
   course_description text [not null]
   course_type course_types [not null]
@@ -197,6 +198,11 @@ Table user_exercises {
   updated_at timestamp
 }
 
+Table user_level {
+  user_id int [ref: - users.id]
+  current_lv int
+}
+
 // G3 Event Hub
 Table event {
   id int [pk, increment]
@@ -214,8 +220,6 @@ Table event {
   created_at timestamp
   updated_at timestamp
 }
-
-
 
 Table bookmark {
   user_id int [pk, ref: > users.id]
