@@ -204,7 +204,7 @@ Defines the delivery format of a course.
 
 | Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | int | Primary Key, Auto-increment | Unique identifier for the user exercise record. |
+| `user_id` | int | Foreign Key to `users.id` | The id of user. |
 | `current_lv` | int |                     | Current level of user. |
 
 
