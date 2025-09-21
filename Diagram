@@ -1,4 +1,9 @@
-// Database: PostgreSQL
+//// -----------------------------------------------------------
+//// -- Project: Smart City DB
+//// -- Database: PostgreSQL
+//// -- Last Updated: 2025-09-21
+//// -----------------------------------------------------------
+
 // User Features
 Table roles {
   id int [pk, increment]
@@ -29,7 +34,11 @@ Table users {
   password_hash varchar(256) [not null]
   email varchar(255) [unique]
   phone varchar(15) [unique]
-  address text [not null]
+  province varchar(255)
+  district varchar(255)
+  subdistrict varchar(255)
+  zip_code varchar(20)
+  more_address_detail text
   birth_date timestamp [not null]
   created_at timestamp
   updated_at timestamp
@@ -83,7 +92,9 @@ Table volunteer_events {
   start_date timestamp
   end_date timestamp
   register_deadline timestamp
-  location text
+  district varchar(255)
+  subdistrict varchar(255)
+  more_location_detail text
   status volunteer_event_status
   created_at timestamp
   updated_at timestamp
@@ -132,7 +143,10 @@ Table online_courses {
 Table onsites {
   id int [pk, increment]
   course_id int [ref: > courses.id]
-  event_venue text [not null]
+  province varchar(255)
+  district varchar(255)
+  subdistrict varchar(255)
+  more_address_detail text
   duration_hours decimal
   event_datetime timestamp [not null]
   registration_deadline timestamp [not null]
@@ -158,7 +172,10 @@ Table event {
   total_seat int
   start_date timestamp
   end_date timestamp
-  location text
+  province varchar(255)
+  district varchar(255)
+  subdistrict varchar(255)
+  more_location_detail text
   created_at timestamp
   updated_at timestamp
 }
@@ -184,7 +201,11 @@ Table facilities {
   facility_id int [pk, increment]
   name varchar(255)
   type varchar(50)
-  address text
+  province varchar(255)
+  district varchar(255)
+  subdistrict varchar(255)
+  zip_code varchar(20)
+  more_address_detail text
   phone varchar(20)
   latitude decimal(10,8)
   longitude decimal(11,8)
@@ -255,7 +276,11 @@ Table emergency_calls {
   caller_phone varchar(20)
   emergency_type varchar(50)
   severity varchar(20)
-  location_address text
+  province varchar(255)
+  district varchar(255)
+  subdistrict varchar(255)
+  zip_code varchar(20)
+  more_address_detail text
   ambulance_id int [ref: > ambulances.ambulance_id]
   facility_id int [ref: > facilities.facility_id]
   status varchar(20)
@@ -519,7 +544,10 @@ Enum categories {
 
 Table air_quality {
   id int [pk, increment]
-  location text [not null]
+  province varchar(255)
+  district varchar(255)
+  subdistrict varchar(255)
+  more_address_detail text
   aqi decimal
   pm25 decimal
   pm10 decimal
@@ -561,10 +589,15 @@ enum transportation_card_transaction_status {
   failed
 }
 
+table transportation_vehicle_type {
+  type_id int [pk, increment]
+  type_name varchar(100)
+}
+
 table route {
   route_id int [pk, increment]
   route_name varchar(255)
-  type_id int
+  type_id int [ref: > transportation_vehicle_type.type_id]
 }
 
 table transportation_card_transaction {
@@ -575,13 +608,6 @@ table transportation_card_transaction {
   status transportation_card_transaction_status
   timestamp timestamp
 }
-
-table transportation_vehicle_type {
-  type_id int [pk, increment]
-  type_name varchar(100)
-}
-
-Ref: route.type_id < transportation_vehicle_type.type_id
 
 enum transportation_vehicle_status {
   active
@@ -622,7 +648,6 @@ table transportation_user_request {
   timestamp timestamp
 }
 
-
 // G9 Find Apartment
 Table apartment {
   id int [pk, increment]
@@ -636,6 +661,7 @@ Table apartment_address {
   apartment_id int [ref: - apartment.id]
   apartment_latitude decimal
   apartment_longitude decimal
+  province varchar(255)
   district varchar(255)
   sub_district varchar(255)
   zip_code varchar(255)
@@ -681,10 +707,9 @@ Table power_bi_report {
   report_date timestamp
 }
 
-
 // G7 Power BI Report Management
 Table dim_time {
-  time_id int [pk]
+  time_id int [pk, increment]
   date timestamp
   year int
   month int
@@ -694,7 +719,8 @@ Table dim_time {
 }
 
 Table dim_location {
-  location_id int [pk]
+  location_id int [pk, increment]
+  province varchar(255)
   district varchar(255)
   subdistrict varchar(255)
   latitude decimal
@@ -702,7 +728,7 @@ Table dim_location {
 }
 
 Table dim_facility {
-  facility_id int [pk]
+  facility_id int [pk, increment]
   facility_type varchar(255)
   facility_name varchar(255)
   location_id int [ref: > dim_location.location_id]
@@ -751,13 +777,13 @@ Table fact_demographic {
 }
 
 Table dim_user {
-  user_id int [pk]
+  user_id int [pk, increment]
   role varchar
   department varchar
 }
 
 Table dim_category {
-  category_id int [pk]
+  category_id int [pk, increment]
   category_name varchar(255)
 }
 
@@ -768,4 +794,22 @@ Table report_metadata {
   category_id int [ref: > dim_category.category_id]
   created_by int [ref: > dim_user.user_id]
   last_updated timestamp
+}
+
+// G16 Community map
+Table marker_type {
+  id int [pk, increment]
+  marker_icon varchar(255)
+  marker_color varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table map_marker {
+  id int [pk, increment]
+  marker_type_id int [ref: > marker_type.id]
+  display_name varchar(255)
+  description varchar(255)
+  created_at timestamp
+  updated_at timestamp
 }
