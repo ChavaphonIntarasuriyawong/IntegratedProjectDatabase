@@ -1,7 +1,7 @@
 //// -----------------------------------------------------------
 //// -- Project: Smart City DB
 //// -- Database: PostgreSQL
-//// -- Last Updated: 2025-09-21
+//// -- Last Updated: 2025-09-22
 //// -----------------------------------------------------------
 
 // User Features
@@ -74,7 +74,6 @@ Table freecycle_posts {
   photo_url text [not null]
   description text [not null]
   donater_id int [not null, ref: > users.id]
-  receiver_id int [ref: > users.id]
   donate_to_department_id int [ref: > departments.id]
   is_given boolean [default: false]
   created_at timestamp
@@ -91,6 +90,21 @@ Table freecycle_categories {
 Table freecycle_posts_categories {
   post_id int [pk, ref: > freecycle_posts.id]
   category_id int [pk, ref: > freecycle_categories.id]
+}
+
+Enum freecycle_request_status {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+Table receiver_requests {
+  id int [pk, increment]
+  post_id int [ref: > freecycle_posts.id]
+  receiver_id int [ref: > users.id]
+  status freecycle_request_status [default: 'PENDING']
+  created_at timestamp
+  updated_at timestamp
 }
 
 // G6 Volunteer
