@@ -107,6 +107,9 @@ Table volunteer_events {
   for_department id [ref: < departments.id]
   title varchar(255) [not null]
   description text [not null]
+  current_participator int [default: 0, not null]
+  avaliable_seat int [not null, default: 0]
+  total_seat int [not null, default: 1]
   start_date timestamp
   end_date timestamp
   register_deadline timestamp
@@ -122,9 +125,6 @@ Table volunteer_event_participation {
   id int [pk, increment]
   volunteer_event_id int [ref: > volunteer_events.id]
   participated_user_id int [ref: > users.id]
-  current_participator int [default: 0, not null]
-  avaliable_seat int [not null, default: 0]
-  total_seat int [not null, default: 1]
   created_at timestamp
   updated_at timestamp
 }
@@ -214,6 +214,8 @@ Table event {
   created_at timestamp
   updated_at timestamp
 }
+
+
 
 Table bookmark {
   user_id int [pk, ref: > users.id]
