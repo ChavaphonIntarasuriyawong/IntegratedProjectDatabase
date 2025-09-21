@@ -216,8 +216,8 @@ This module manages the posting and claiming of free items.
 | `photo_url` | text | Not Null | URL of the item's photo. |
 | `description` | text | Not Null | A description of the item. |
 | `donater_id` | int | Not Null, Foreign Key to `users.id` | The user who is donating the item. |
-| `receiver_id` | int | Foreign Key to `users.id` | The user who has claimed the item. |
-| `donate_to_department_id` | int | Foreign Key to `departments.id` | Specifies if the item is donated to a specific department. |
+| `receiver_id` | int | Foreign Key to `users.id` | The user who has claimed the item. can be NULL if donater decided to donate to a department. |
+| `donate_to_department_id` | int | Foreign Key to `departments.id` | Specifies if the item is donated to a specific department. can be NULL if donater decided to donate to a user(receiver). |
 | `is_given` | boolean | Default: `false` | A flag indicating if the item has been successfully given away. |
 | `created_at` | timestamp | | Timestamp of when the post was created. |
 | `updated_at` | timestamp | | Timestamp of the last update to the post. |
