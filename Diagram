@@ -49,6 +49,23 @@ Table users_departments {
   department_id int [pk, ref: > departments.id]
 }
 
+// Authentication
+Table sessions {
+  session_id varchar(255)
+  user_id int [ref: - users.id]
+  created_at timestamp
+  expires_at timestamp
+  last_accessed timestamp
+}
+
+Table refresh_tokens {
+  id int [pk, increment]
+  user_id int [ref: - users.id]
+  refresh_token varchar[512]
+  created_at timestamp
+  expires_at timestamp
+}
+
 // G4 Freecycle
 Table freecycle_posts {
   id int [pk, increment]
