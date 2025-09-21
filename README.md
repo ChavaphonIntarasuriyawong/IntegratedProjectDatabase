@@ -26,7 +26,7 @@ Defines the possible gender values for users.
 | Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | int | Primary Key, Auto-increment | Unique identifier for the department. |
-| `department_name` | varchar(255) | | The name of the department (e.g. 'Health Care', 'Volunteer', etc.). |
+| `department_name` | varchar(255) | | The name of the department (e.g., 'Volunteer', 'Education', 'Health Care', etc.). |
 | `created_at` | timestamp | | Timestamp of when the department was created. |
 | `updated_at` | timestamp | | Timestamp of the last update to the department record. |
 
@@ -140,6 +140,31 @@ Defines the delivery format of a course.
 | `onsite_id` | int | Foreign Key to `onsites.id` | The ID of the onsite event. |
 | `user_id` | int | Primary Key, Foreign Key to `users.id` | The ID of the enrolled user. |
 
+***
+
+### **Table: `questions`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the question. |
+| `question` | text | | The text of the question. |
+| `created_at` | timestamp | | Timestamp of when the question was created. |
+| `updated_at` | timestamp | | Timestamp of the last update to the question. |
+
+***
+
+### **Table: `user_exercises`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the user exercise record. |
+| `user_id` | int | Foreign Key to `users.id` | The ID of the user completing the exercise. |
+| `question_id` | int | Foreign Key to `questions.id` | The ID of the question in the exercise. |
+| `user_answer` | text | | The user's answer to the question. |
+| `is_correct` | boolean | | Flag indicating if the user's answer is correct. |
+| `created_at` | timestamp | | Timestamp of when the exercise was completed. |
+| `updated_at` | timestamp | | Timestamp of the last update to the exercise record. |
+
 ---
 
 ## G3: Event Hub
@@ -191,8 +216,8 @@ This module manages the posting and claiming of free items.
 | `photo_url` | text | Not Null | URL of the item's photo. |
 | `description` | text | Not Null | A description of the item. |
 | `donater_id` | int | Not Null, Foreign Key to `users.id` | The user who is donating the item. |
-| `receiver_id` | int | Foreign Key to `users.id` | The user who has claimed the item. can be NULL if donater decided to donate to a department. |
-| `donate_to_department_id` | int | Foreign Key to `departments.id` | Specifies if the item is donated to a specific department. can be NULL if donater decided to donate to a user(receiver). |
+| `receiver_id` | int | Foreign Key to `users.id` | The user who has claimed the item. |
+| `donate_to_department_id` | int | Foreign Key to `departments.id` | Specifies if the item is donated to a specific department. |
 | `is_given` | boolean | Default: `false` | A flag indicating if the item has been successfully given away. |
 | `created_at` | timestamp | | Timestamp of when the post was created. |
 | `updated_at` | timestamp | | Timestamp of the last update to the post. |
@@ -298,6 +323,7 @@ Defines the approval status of a volunteer event.
 | :--- | :--- | :--- | :--- |
 | `id` | int | Primary Key, Auto-increment | Unique identifier for the volunteer event. |
 | `user_created_event_id` | int | Foreign Key to `users.id` | The user who created the event. |
+| `for_department_id` | int | Foreign Key to `departments.id` | The department the event is for. |
 | `title` | varchar(255) | Not Null | The title of the event. |
 | `description` | text | Not Null | A detailed description of the event. |
 | `start_date` | timestamp | | The start date and time of the event. |
