@@ -220,6 +220,7 @@ A general-purpose module for community events.
 | :--- | :--- | :--- | :--- |
 | `id` | int | Primary Key, Auto-increment | Unique identifier for the event. |
 | `host_event_id` | int | Foreign Key to `users.id` | The user hosting the event. |
+| `from_department` | int | Foreign Key to `departments.id` | This event come from what department. |
 | `image` | text | | The image of event. |
 | `title` | varchar(255) | | The title of the event. |
 | `description` | varchar(255) | | A description of the event. |
