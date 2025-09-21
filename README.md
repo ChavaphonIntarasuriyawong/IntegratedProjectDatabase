@@ -13,7 +13,7 @@ Stores user roles to manage permissions.
 | Column | Data Type | Description | Constraints / Notes |
 | :--- | :--- | :--- | :--- |
 | `id` | `INT` | Unique identifier for the role. | **Primary Key**, Auto-increment |
-| `role_name` | `VARCHAR(50)` | The name of the role (e.g., 'Admin', 'Citizen'). | |
+| `role_name` | `VARCHAR(50)` | The name of the role (e.g., 'Admin', 'Citizen', 'Doctor', 'Security, etc.'). | |
 
 ### Enum: `genders`
 Defines the possible gender options for users.
@@ -26,7 +26,7 @@ Stores information about various city departments or organizations.
 | Column | Data Type | Description | Constraints / Notes |
 | :--- | :--- | :--- | :--- |
 | `id` | `INT` | Unique identifier for the department. | **Primary Key**, Auto-increment |
-| `department_name` | `VARCHAR(255)` | The official name of the department. | |
+| `department_name` | `VARCHAR(255)` | The official name of the department (e.g., 'Health Care', 'Education', 'Volunteer', etc.). | |
 | `created_at` | `TIMESTAMP` | Timestamp when the department was created. | |
 | `updated_at` | `TIMESTAMP` | Timestamp when the department was last updated. | |
 
