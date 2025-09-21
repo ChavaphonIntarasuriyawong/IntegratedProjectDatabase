@@ -183,6 +183,7 @@ Defines the delivery format of a course.
 | :--- | :--- | :--- | :--- |
 | `id` | int | Primary Key, Auto-increment | Unique identifier for the question. |
 | `question` | text | | The text of the question. |
+| `level` | int |                     | level of question. |
 | `created_at` | timestamp | | Timestamp of when the question was created. |
 | `updated_at` | timestamp | | Timestamp of the last update to the question. |
 
