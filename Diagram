@@ -104,7 +104,8 @@ Enum volunteer_event_status {
 Table volunteer_events {
   id int [pk, increment]
   user_created_event_id int [ref: > users.id]
-  for_department id [ref: < departments.id]
+  for_department id [ref: - departments.id]
+  image text
   title varchar(255) [not null]
   description text [not null]
   current_participator int [default: 0, not null]
@@ -184,6 +185,7 @@ Table onsite_enrollments {
 Table questions {
   id int [pk, increment]
   question text
+  level int
   created_at timestamp
   updated_at timestamp
 }
@@ -207,6 +209,8 @@ Table user_level {
 Table event {
   id int [pk, increment]
   host_event_id int [ref: > users.id]
+  from_department in [ref: - departments.id]
+  image text
   title varchar(255)
   description varchar(255)
   avaliable_seat int
