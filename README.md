@@ -220,6 +220,7 @@ A general-purpose module for community events.
 | :--- | :--- | :--- | :--- |
 | `id` | int | Primary Key, Auto-increment | Unique identifier for the event. |
 | `host_event_id` | int | Foreign Key to `users.id` | The user hosting the event. |
+| `image` | text | | The image of event. |
 | `title` | varchar(255) | | The title of the event. |
 | `description` | varchar(255) | | A description of the event. |
 | `avaliable_seat` | int | | The number of available seats. |
@@ -367,6 +368,7 @@ Defines the approval status of a volunteer event.
 | `id` | int | Primary Key, Auto-increment | Unique identifier for the volunteer event. |
 | `user_created_event_id` | int | Foreign Key to `users.id` | The user who created the event. |
 | `for_department_id` | int | Foreign Key to `departments.id` | The department the event is for. |
+| `image` | text | | The image of event. |
 | `title` | varchar(255) | Not Null | The title of the event. |
 | `description` | text | Not Null | A detailed description of the event. |
 | `current_participator` | int | Not Null, Default: 0 | The current number of participants. |
