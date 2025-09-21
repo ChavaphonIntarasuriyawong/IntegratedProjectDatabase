@@ -121,6 +121,7 @@ Defines the delivery format of a course.
 | Field Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | int | Primary Key, Auto-increment | Unique identifier for the course. |
+| `author_id` | int | Not Null, Foreign Key to `users.id` | The user who created course. |
 | `course_name` | varchar(255) | Not Null | The name of the course. |
 | `course_description` | text | Not Null | A detailed description of the course. |
 | `course_type` | course_types | Not Null | The type of course (e.g., 'ONLINE', 'ONSITE'). |
@@ -198,6 +199,14 @@ Defines the delivery format of a course.
 | `is_correct` | boolean | | Flag indicating if the user's answer is correct. |
 | `created_at` | timestamp | | Timestamp of when the exercise was completed. |
 | `updated_at` | timestamp | | Timestamp of the last update to the exercise record. |
+
+### **Table: `user_level`**
+
+| Field Name | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | int | Primary Key, Auto-increment | Unique identifier for the user exercise record. |
+| `current_lv` | int |                     | Current level of user. |
+
 
 ---
 
