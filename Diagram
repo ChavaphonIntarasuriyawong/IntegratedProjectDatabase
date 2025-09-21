@@ -87,6 +87,7 @@ Enum volunteer_event_status {
 Table volunteer_events {
   id int [pk, increment]
   user_created_event_id int [ref: > users.id]
+  for_department id [ref: < departments.id]
   title varchar(255) [not null]
   description text [not null]
   start_date timestamp
@@ -160,6 +161,23 @@ Table onsite_enrollments {
   id int [pk, increment]
   onsite_id int [ref: > onsites.id]
   user_id int [pk, ref: > users.id]
+}
+
+Table questions {
+  id int [pk, increment]
+  question text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table user_exercises {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  question_id int [ref: > questions.id]
+  user_answer text
+  is_correct boolean
+  created_at timestamp
+  updated_at timestamp
 }
 
 // G3 Event Hub
