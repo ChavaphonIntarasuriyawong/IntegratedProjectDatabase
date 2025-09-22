@@ -471,6 +471,9 @@ Table transaction {
 // G10 Traffic
 Table traffic_light {
   light_id int [pk, increment]
+  intersection_id int [ref: < intersection.intersection_id]
+  road_id int [ref: < road.road_id]
+  ip_address varchar(255)
   latitude varchar(100)
   longitude varchar(100)
   status boolean
