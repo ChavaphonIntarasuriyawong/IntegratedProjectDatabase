@@ -620,6 +620,9 @@ Stores the status and data for individual traffic lights.
 | Column | Data Type | Description | Constraints / Notes |
 | :--- | :--- | :--- | :--- |
 | `light_id` | `INT` | Unique identifier for the traffic light. | **Primary Key**, Auto-increment |
+| `intersection_id` | `INT` | intersection use for calculate cycle time of light from traffic light in that intersection. | Foreign Key to `intersection.intersection_id` |
+| `road_id` | `INT` | road use for calculate density level to use for calculate amount of green light time. | Foreign Key to `road.road_id` |
+| `ip_address` | `VARCHAR(255)` | use for connect with ESP32 for send light cycle real time. | |
 | `latitude` | `VARCHAR(100)` | The latitude coordinate of the light. | |
 | `longitude` | `VARCHAR(100)` | The longitude coordinate of the light. | |
 | `status` | `BOOLEAN` | The operational status of the light (on/off). | |
