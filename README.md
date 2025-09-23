@@ -1025,7 +1025,7 @@ Stores individual chat messages within a conversation.
 
 ---
 
-## G15: Weather report
+## G14: Weather report
 Tables for weather report.
 
 ### Table: `weather_data`
