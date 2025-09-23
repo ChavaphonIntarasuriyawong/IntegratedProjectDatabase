@@ -938,6 +938,7 @@ A generic table to manage integrations with external team systems.
 
 ---
 
+
 ## G13: Emergency Reports
 Tables for users to report emergencies and communicate.
 
@@ -1021,6 +1022,26 @@ Stores individual chat messages within a conversation.
 | `message_text` | `TEXT` | The content of the message. | |
 | `sent_at` | `TIMESTAMP` | Timestamp when the message was sent. | |
 | `conversation_id` | `INT` | The conversation the message belongs to. | Not Null, Foreign Key to `conversations.conversation_id` |
+
+---
+
+## G15: Weather report
+Tables for weather report.
+
+### Table: `weather_data`
+Stores detailed weather condition data for specific times and locations. This table could be linked to a location dimension for geographical context.
+
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `id` | `INT` | Unique identifier for the weather data record. | **Primary Key**, Auto-increment |
+| `temperature` | `DECIMAL` | The actual measured temperature, likely in Celsius. | |
+| `feel_temperature` | `DECIMAL` | The perceived 'feels like' temperature, which accounts for factors like wind chill and humidity. | |
+| `humidity` | `DECIMAL` | The relative humidity, typically expressed as a percentage (e.g., 65.5 for 65.5%). | |
+| `wind` | `DECIMAL` | The measured wind speed, likely in kilometers per hour (km/h). | |
+| `wind_direction` | `VARCHAR(255)` | The cardinal or ordinal direction from which the wind is blowing (e.g., 'N', 'SW', 'North-West'). | |
+| `rainfall_probability` | `DECIMAL` | The probability of precipitation (rain), typically expressed as a percentage. | |
+| `created_at` | `timestamp` | Timestamp for weather data was created. | |
+| `updated_at` | `timestamp` | Timestamp for weather data was updated. | |
 
 ---
 
