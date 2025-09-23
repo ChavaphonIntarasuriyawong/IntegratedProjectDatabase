@@ -1,7 +1,7 @@
 //// -----------------------------------------------------------
 //// -- Project: Smart City DB
 //// -- Database: PostgreSQL
-//// -- Last Updated: 2025-09-22
+//// -- Last Updated: 2025-09-23
 //// -----------------------------------------------------------
 
 // User Features
@@ -872,6 +872,19 @@ Table map_marker {
   marker_type_id int [ref: > marker_type.id]
   display_name varchar(255)
   description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+// G14 Weather report
+Table weather_data {
+  id int [pk, increment]
+  temperature decimal
+  feel_temperature decimal
+  humidity decimal
+  wind decimal
+  wind_direction varchar(255)
+  rainfall_probability decimal
   created_at timestamp
   updated_at timestamp
 }
