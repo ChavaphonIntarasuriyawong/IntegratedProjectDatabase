@@ -1,7 +1,7 @@
 # Smart City DB Data Dictionary
 * **Project:** Smart City DB
 * **Database:** PostgreSQL
-* **Last Updated:** 2025-09-22
+* **Last Updated:** 2025-09-23
 
 ---
 
