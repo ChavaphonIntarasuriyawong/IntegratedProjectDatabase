@@ -1,7 +1,7 @@
 # Smart City DB Data Dictionary
 * **Project:** Smart City DB
 * **Database:** PostgreSQL
-* **Last Updated:** 2025-09-23
+* **Last Updated:** 2025-09-27
 
 ---
 
@@ -956,6 +956,11 @@ Defines the status of an emergency report.
 * `verified`
 * `resolved`
 
+### Enum: `sos_status`
+Defines the status of an SOS
+* `open`
+* `closed`
+
 ### Enum: `report_category`
 Defines the category of an emergency report.
 * `traffic`
@@ -969,10 +974,12 @@ Stores emergency reports submitted by users.
 | `report_id` | `INT` | Unique identifier for the report. | **Primary Key**, Not Null, Auto-increment |
 | `user_id` | `INT` | The user who submitted the report. | Not Null, Foreign Key to `users.id` |
 | `image` | `VARCHAR(255)` | URL or path to an image of the incident. | Not Null |
-| `description` | `VARCHAR(255)` | A description of the incident. | Not Null |
-| `latitude` | `VARCHAR(255)` | The latitude of the incident. | Not Null |
+| `description` | `decimal(10, 6)` | A description of the incident. | Not Null |
+| `latitude` | `decimal(10, 6)` | The latitude of the incident. | Not Null |
 | `longitude` | `VARCHAR(255)` | The longitude of the incident. | Not Null |
 | `level` | `level` | The severity level of the report. | Enum Type |
+| `ambulance_service` | `boolean` | requirement of an ambulance | |
+| `status` | `report_status` | status of the report | |
 | `status` | `report_status` | The current status of the report. | Enum Type |
 | `category` | `report_category` | The category of the report. | Enum Type |
 | `updated_at` | `TIMESTAMP` | Timestamp when the report was last updated. | |
