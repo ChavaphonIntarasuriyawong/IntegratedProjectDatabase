@@ -1,386 +1,35 @@
 //// -----------------------------------------------------------
 //// -- Project: Smart City DB
-//// -- Database: PostgreSQL
+//// -- Database: PostgreSQL with PostGIS
 //// -- Last Updated: 2025-09-27
 //// -----------------------------------------------------------
 
-// User Features
-Table roles {
-  id int [pk, increment]
-  role_name varchar(50)
-}
 
-Enum genders {
-  MALE
-  FEMALE
-  NONE
-}
-
-Table departments {
-  id int [pk, increment]
-  department_name varchar(255)
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table users {
-  id int [pk, increment]
-  username varchar(25)
-  first_name varchar(255)
-  middle_name varchar(255)
-  last_name varchar(255)
-  gender genders
-  role_id int [ref: > roles.id]
-  password_hash varchar(256) [not null]
-  email varchar(255) [unique]
-  phone varchar(15) [unique]
-  province varchar(255)
-  district varchar(255)
-  subdistrict varchar(255)
-  zip_code varchar(20)
-  more_address_detail text
-  birth_date timestamp [not null]
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table users_departments {
-  user_id int [pk, ref: > users.id]
-  department_id int [pk, ref: > departments.id]
-}
-
-// Authentication
-Table sessions {
-  session_id varchar(255)
-  user_id int [ref: - users.id]
-  created_at timestamp
-  expires_at timestamp
-  last_accessed timestamp
-}
-
-Table refresh_tokens {
-  id int [pk, increment]
-  user_id int [ref: - users.id]
-  refresh_token varchar[512]
-  created_at timestamp
-  expires_at timestamp
-}
-
-// G4 Freecycle
-Table freecycle_posts {
-  id int [pk, increment]
-  item_name varchar(100) [not null]
-  item_weight decimal
-  photo_url text [not null]
-  description text [not null]
-  donater_id int [not null, ref: > users.id]
-  donate_to_department_id int [ref: > departments.id]
-  is_given boolean [default: false]
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table freecycle_categories {
-  id int [pk, increment]
-  category_name varchar(100)
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table freecycle_posts_categories {
-  post_id int [pk, ref: > freecycle_posts.id]
-  category_id int [pk, ref: > freecycle_categories.id]
+Enum gender {
+  male
+  female
+  none
 }
 
 Enum freecycle_request_status {
-  PENDING
-  ACCEPTED
-  REJECTED
+  pending
+  accepted
+  rejected
 }
 
-Table receiver_requests {
-  id int [pk, increment]
-  post_id int [ref: > freecycle_posts.id]
-  receiver_id int [ref: > users.id]
-  status freecycle_request_status [default: 'PENDING']
-  created_at timestamp
-  updated_at timestamp
-}
-
-// G6 Volunteer
 Enum volunteer_event_status {
-  DRAFT
-  PENDING
-  APPROVED
-  REJECTED
+  draft
+  pending
+  approved
+  rejected
 }
 
-Table volunteer_events {
-  id int [pk, increment]
-  user_created_event_id int [ref: > users.id]
-  for_department id [ref: - departments.id]
-  image text
-  title varchar(255) [not null]
-  description text [not null]
-  current_participator int [default: 0, not null]
-  avaliable_seat int [not null, default: 0]
-  total_seat int [not null, default: 1]
-  start_date timestamp
-  end_date timestamp
-  register_deadline timestamp
-  district varchar(255)
-  subdistrict varchar(255)
-  more_location_detail text
-  status volunteer_event_status
-  created_at timestamp
-  updated_at timestamp
+Enum course_type {
+  online
+  onsite
+  online_and_onsite
 }
 
-Table volunteer_event_participation {
-  id int [pk, increment]
-  volunteer_event_id int [ref: > volunteer_events.id]
-  participated_user_id int [ref: > users.id]
-  created_at timestamp
-  updated_at timestamp
-}
-
-// G1 Know AI Courses
-Enum course_types {
-  ONLINE
-  ONSITE
-  ONLINE_AND_ONSITE
-}
-
-Table courses {
-  id int [pk, increment]
-  author_id int [ref: > users.id]
-  course_name varchar(255) [not null]
-  course_description text [not null]
-  course_type course_types [not null]
-  cover_image text [not null]
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table online_courses {
-  id int [pk, increment]
-  video_name varchar(100) [not null]
-  video_description text [not null]
-  duration_minutes decimal [not null]
-  video_order int [not null]
-  video_file_path text [not null]
-  course_id int [not null, ref: > courses.id]
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table onsites {
-  id int [pk, increment]
-  course_id int [ref: > courses.id]
-  province varchar(255)
-  district varchar(255)
-  subdistrict varchar(255)
-  more_address_detail text
-  duration_hours decimal
-  event_datetime timestamp [not null]
-  registration_deadline timestamp [not null]
-  avaliable_seat int [not null, default: 0]
-  total_seat int [not null, default: 1]
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table onsite_enrollments {
-  id int [pk, increment]
-  onsite_id int [ref: > onsites.id]
-  user_id int [pk, ref: > users.id]
-}
-
-Table questions {
-  id int [pk, increment]
-  question text
-  level int
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table user_exercises {
-  id int [pk, increment]
-  user_id int [ref: > users.id]
-  question_id int [ref: > questions.id]
-  user_answer text
-  is_correct boolean
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table user_level {
-  user_id int [ref: - users.id]
-  current_lv int
-}
-
-// G3 Event Hub
-Table event {
-  id int [pk, increment]
-  host_event_id int [ref: > users.id]
-  from_department in [ref: - departments.id]
-  image text
-  title varchar(255)
-  description varchar(255)
-  avaliable_seat int
-  total_seat int
-  start_date timestamp
-  end_date timestamp
-  province varchar(255)
-  district varchar(255)
-  subdistrict varchar(255)
-  more_location_detail text
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table bookmark {
-  user_id int [pk, ref: > users.id]
-  event_id int [pk, ref: > event.id]
-  createdAt timestamp
-}
-
-// G12 Healthcare
-Table patients {
-  patient_id int [pk, increment]
-  user_id int [ref: - users.id]
-  emergency_contact varchar(200)
-  finance_id int
-  housing_id int
-  sos_id int
-  created_at timestamp
-}
-
-Table facilities {
-  facility_id int [pk, increment]
-  name varchar(255)
-  type varchar(50)
-  province varchar(255)
-  district varchar(255)
-  subdistrict varchar(255)
-  zip_code varchar(20)
-  more_address_detail text
-  phone varchar(20)
-  latitude decimal(10,8)
-  longitude decimal(11,8)
-  emergency_services boolean
-  finance_merchant_id int
-  housing_zone varchar(100)
-  sos_code varchar(50)
-  department_id int [ref: > departments.id]
-  created_at timestamp
-}
-
-Table beds {
-  bed_id int [pk, increment]
-  facility_id int [ref: > facilities.facility_id]
-  bed_number varchar(20)
-  bed_type varchar(50)
-  status varchar(20)
-  patient_id int [ref: - patients.patient_id]
-  admission_date timestamp
-  finance_billing_id int
-  sos_priority integer
-}
-
-Table appointments {
-  appointment_id int [pk, increment]
-  patient_id int [ref: > patients.patient_id]
-  facility_id int [ref: > facilities.facility_id]
-  user_id int [ref: > users.id]
-  appointment_datetime timestamp
-  type varchar(50)
-  status varchar(20)
-  finance_payment_id int
-  housing_transport_id int
-  sos_emergency boolean
-  created_at timestamp
-}
-
-Table prescriptions {
-  prescription_id int [pk, increment]
-  patient_id int [ref: > patients.patient_id]
-  user_id int [ref: > users.id]
-  facility_id int [ref: > facilities.facility_id]
-  medication_name varchar(255)
-  quantity integer
-  status varchar(20)
-  finance_payment_id int
-  housing_delivery_id int
-  sos_critical boolean
-  created_at timestamp
-}
-
-Table ambulances {
-  ambulance_id int [pk, increment]
-  vehicle_number varchar(50)
-  status varchar(20)
-  current_latitude decimal(10,8)
-  current_longitude decimal(11,8)
-  base_facility_id int [ref: > facilities.facility_id]
-  finance_rate decimal(10,2)
-  housing_coverage_zones json
-  sos_priority integer
-  created_at timestamp
-}
-
-Table emergency_calls {
-  emergency_id int [pk, increment]
-  patient_id int [ref: > patients.patient_id]
-  caller_phone varchar(20)
-  emergency_type varchar(50)
-  severity varchar(20)
-  province varchar(255)
-  district varchar(255)
-  subdistrict varchar(255)
-  zip_code varchar(20)
-  more_address_detail text
-  ambulance_id int [ref: > ambulances.ambulance_id]
-  facility_id int [ref: > facilities.facility_id]
-  status varchar(20)
-  finance_billing_id int
-  housing_unit varchar(100)
-  sos_incident_id int
-  created_at timestamp
-}
-
-Table payments {
-  payment_id int [pk, increment]
-  patient_id int [ref: > patients.patient_id]
-  facility_id int [ref: > facilities.facility_id]
-  service_type varchar(50)
-  service_id int
-  amount decimal(10,2)
-  currency varchar(3)
-  payment_method varchar(50)
-  insurance_coverage decimal(10,2)
-  patient_copay decimal(10,2)
-  status varchar(20)
-  payment_date timestamp
-  finance_transaction_id int
-  insurance_claim_id int
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table team_integrations {
-  integration_id int [pk, increment]
-  team_name varchar(50)
-  healthcare_table varchar(50)
-  healthcare_id varchar
-  external_id varchar(100)
-  data_type varchar(50)
-  status varchar(20)
-  additional_data json
-  created_at timestamp
-}
-
-// G11 Financial
 Enum wallet_type {
   individual
   organization
@@ -391,59 +40,11 @@ Enum wallet_status {
   suspended
 }
 
-Table wallets {
-  wallet_id int [pk, increment]
-  owner_id int [unique, ref: - users.id]
-  wallet_type wallet_type
-  organization_type varchar(100)
-  balance decimal [default: 0.0]
-  status wallet_status
-  created_at timestamp
-  updated_at timestamp
-}
-
 Enum transaction_type {
   top_up
   transfer_in
-  transfere_out
+  transfer_out
   transfer_to_service
-}
-
-Enum target_services {
-  insurance
-  metro
-  null
-}
-
-Table wallet_transactions {
-  transaction_id int [pk, increment]
-  wallet_id int [ref: > wallets.wallet_id]
-  transaction_type transaction_type
-  amount decimal
-  target_wallet_id int
-  target_service target_services
-  description varchar(255)
-  created_at timestamp
-}
-
-Table insurance_cards {
-  card_id int [pk, increment]
-  citizen_id int [ref: > users.id]
-  balance decimal [default: 0.0]
-  card_number int [unique]
-  status wallet_status
-  created_at timestamp
-  updated_at timestamp
-}
-
-Table metro_cards {
-  card_id int [pk, increment]
-  citizen_id int [ref: > users.id]
-  balance decimal [default: 0.0]
-  card_number int [unique]
-  status wallet_status
-  created_at timestamp
-  updated_at timestamp
 }
 
 Enum card_transaction_type {
@@ -457,94 +58,19 @@ Enum transaction_category {
   metro
 }
 
-Table transaction {
-  transaction_id int [pk, increment]
-  card_id int [ref: > insurance_cards.card_id]
-  transaction_type card_transaction_type
-  transaction_category transaction_category
-  reference varchar(50)
-  amount decimal [default: 0.0]
-  description varchar(255)
-  created_at timestamp
+Enum air_quality_category {
+  good
+  moderate
+  unhealthy
+  hazardous
 }
 
-// G10 Traffic
-Table traffic_light {
-  light_id int [pk, increment]
-  intersection_id int [ref: < intersection.intersection_id]
-  road_id int [ref: < road.road_id]
-  ip_address varchar(255)
-  latitude varchar(100)
-  longitude varchar(100)
-  status boolean
-  current_color int
-  density_level int
-  auto_mode boolean
-  last_updated timestamp
-}
-
-Table intersection {
-  intersection_id int [pk, increment]
-  latitude varchar(100)
-  longitude varchar(100)
-}
-
-Table light_request {
-  request_id int [pk, increment]
-  light_id int [ref: > traffic_light.light_id]
-  request_time timestamp
-}
-
-Table road {
-  road_id int [pk, increment]
-  light_id int [ref: > traffic_light.light_id]
-  intersection_id_start int [ref: > intersection.intersection_id]
-  intersection_id_end int [ref: > intersection.intersection_id]
-  length int
-}
-
-Enum traffic_emergency_status {
-  active
-  resolve
-}
-
-Table vehicle {
-  vehicle_id int [pk, increment]
-  user_id int [ref: > users.id]
-  current_latitude varchar(100)
-  current_longitude varchar(100)
-  vehicle_plate varchar(10)
-}
-
-Table traffic_emergency_request {
-  emergency_request int [pk, increment]
-  user_id int [ref: > users.id]
-  accident_latitude varchar(100)
-  accident_longitude varchar(100)
-  destination_hospital varchar(255)
-  status traffic_emergency_status
-  ambulance_id int [ref: > vehicle.vehicle_id]
-}
-
-// G13 Emergency Reports
-Enum level {
+Enum report_level {
   near_miss
   minor
   moderate
   major
   lethal
-}
-
-Enum report_category {
-  traffic
-  disaster
-  crime
-}// change to use table dynamic
-
-Enum user_noti_status {
-  read
-  unread
-  sent
 }
 
 Enum report_status {
@@ -553,369 +79,698 @@ Enum report_status {
   resolved
 }
 
-Enum sos_status {//add
-  open
-  closed
+/* Core lookups */
+Table roles {
+  id int [pk, increment]
+  role_name varchar [not null, unique]
 }
 
-Table reports {
-  report_id int [pk, increment, not null]
-  user_id int [not null, ref: > users.id]
-  image varchar(255) [not null]
-  description varchar(255) [not null]
-  latitude decimal(10,6)// change
-  longitude decimal(10,6)// change
-  level level
-  ambulance_service boolean [default: false]//add
-  status report_status [default: "pending"]// add
-  category report_category
-  updated_at timestamp
-  created_at timestamp
+Table departments {
+  id int [pk, increment]
+  department_name varchar [not null, unique]
+  created_at timestamptz
+  updated_at timestamptz
 }
 
-Table sos {// add
-  sos_id int [pk, increment, not null]
-  user_id int [not null, ref: > users.id]
-  latitude decimal(10,6)
-  longitude decimal(10,6)
-  status sos_status [default: "open"]
-  created_at timestamp
-  updated_at timestamp
+/* Addresses used by many entities */
+Table addresses {
+  id int [pk, increment]
+  address_line text
+  province varchar
+  district varchar
+  subdistrict varchar
+  postal_code varchar
+  location geometry //PostGIS Point(4326)
+  created_at timestamptz
+  updated_at timestamptz
 }
 
+/* Users & profiles */
+Table users {
+  id int [pk, increment]
+  username varchar [not null, unique]
+  email varchar [not null, unique]
+  phone varchar [unique]
+  password_hash varchar [not null]
+  role_id int [ref: > roles.id]
+  created_at timestamptz
+  updated_at timestamptz
+  last_login timestamptz
+}
+
+Table user_profiles {
+  user_id int [pk, ref: > users.id]
+  first_name varchar
+  middle_name varchar
+  last_name varchar
+  birth_date date
+  gender gender
+  address_id int [ref: > addresses.id]
+  more_address_detail text
+}
+
+/* Many-to-many */
+Table users_departments {
+  user_id int [ref: > users.id]
+  department_id int [ref: > departments.id]
+  Indexes {
+    (user_id, department_id) [pk]
+  }
+}
+
+/* Auth */
+Table sessions {
+  session_id uuid [pk]
+  user_id int [ref: > users.id]
+  created_at timestamptz
+  expires_at timestamptz
+  last_accessed timestamptz
+}
+
+Table refresh_tokens {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  refresh_token text
+  created_at timestamptz
+  expires_at timestamptz
+}
+
+/* G4: Freecycle */
+Table freecycle_categories {
+  id int [pk, increment]
+  category_name varchar [not null, unique]
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table freecycle_posts {
+  id int [pk, increment]
+  item_name varchar [not null]
+  item_weight numeric
+  photo_url text
+  description text
+  donater_id int [ref: > users.id]
+  donate_to_department_id int [ref: > departments.id]
+  is_given boolean
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table freecycle_posts_categories {
+  post_id int [ref: > freecycle_posts.id]
+  category_id int [ref: > freecycle_categories.id]
+  Indexes {
+    (post_id, category_id) [pk]
+  }
+}
+
+Table receiver_requests {
+  id int [pk, increment]
+  post_id int [ref: > freecycle_posts.id]
+  receiver_id int [ref: > users.id]
+  status freecycle_request_status
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+/* G6: Volunteer events */
+Table volunteer_events {
+  id int [pk, increment]
+  created_by_user_id int [ref: > users.id]
+  department_id int [ref: > departments.id]
+  image_url text
+  title varchar [not null]
+  description text
+  current_participants int
+  total_seats int
+  start_at timestamptz
+  end_at timestamptz
+  registration_deadline timestamptz
+  address_id int [ref: > addresses.id]
+  status volunteer_event_status
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table volunteer_event_participation {
+  id int [pk, increment]
+  volunteer_event_id int [ref: > volunteer_events.id]
+  user_id int [ref: > users.id]
+  created_at timestamptz
+}
+
+/* G1: Courses */
+Table courses {
+  id int [pk, increment]
+  author_id int [ref: > users.id]
+  course_name varchar [not null]
+  course_description text
+  course_type course_type
+  cover_image text
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table course_videos {
+  id int [pk, increment]
+  course_id int [ref: > courses.id]
+  video_name varchar
+  video_description text
+  duration_minutes int
+  video_order int
+  video_file_path text
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table onsite_sessions {
+  id int [pk, increment]
+  course_id int [ref: > courses.id]
+  address_id int [ref: > addresses.id]
+  duration_hours numeric
+  event_at timestamptz
+  registration_deadline timestamptz
+  total_seats int
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table onsite_enrollments {
+  id int [pk, increment]
+  onsite_id int [ref: > onsite_sessions.id]
+  user_id int [ref: > users.id]
+  created_at timestamptz
+}
+
+/* Questions & exercises */
+Table questions {
+  id int [pk, increment]
+  question text
+  level int
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table user_exercises {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  question_id int [ref: > questions.id]
+  user_answer text
+  is_correct boolean
+  created_at timestamptz
+}
+
+/* User levels */
+Table user_levels {
+  user_id int [pk, ref: > users.id]
+  current_level int
+}
+
+/* G3: Events hub */
+Table events {
+  id int [pk, increment]
+  host_user_id int [ref: > users.id]
+  department_id int [ref: > departments.id]
+  image_url text
+  title varchar
+  description text
+  total_seats int
+  start_at timestamptz
+  end_at timestamptz
+  address_id int [ref: > addresses.id]
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table event_bookmarks {
+  user_id int [ref: > users.id]
+  event_id int [ref: > events.id]
+  created_at timestamptz
+  Indexes {
+    (user_id, event_id) [pk]
+  }
+}
+
+/* G12: Healthcare */
+Table patients {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  emergency_contact varchar
+  created_at timestamptz
+}
+
+Table facilities {
+  id int [pk, increment]
+  name varchar
+  facility_type varchar
+  address_id int [ref: > addresses.id]
+  phone varchar
+  location geometry
+  emergency_services boolean
+  department_id int [ref: > departments.id]
+  created_at timestamptz
+}
+
+Table beds {
+  id int [pk, increment]
+  facility_id int [ref: > facilities.id]
+  bed_number varchar
+  bed_type varchar
+  status varchar
+  patient_id int [ref: > patients.id]
+  admission_date timestamptz
+  created_at timestamptz
+}
+
+Table appointments {
+  id int [pk, increment]
+  patient_id int [ref: > patients.id]
+  facility_id int [ref: > facilities.id]
+  staff_user_id int [ref: > users.id]
+  appointment_at timestamptz
+  type varchar
+  status varchar
+  created_at timestamptz
+}
+
+Table prescriptions {
+  id int [pk, increment]
+  patient_id int [ref: > patients.id]
+  prescriber_user_id int [ref: > users.id]
+  facility_id int [ref: > facilities.id]
+  medication_name varchar
+  quantity int
+  status varchar
+  created_at timestamptz
+}
+
+Table ambulances {
+  id int [pk, increment]
+  vehicle_number varchar
+  status varchar
+  current_location geometry
+  base_facility_id int [ref: > facilities.id]
+  created_at timestamptz
+}
+
+Table emergency_calls {
+  id int [pk, increment]
+  patient_id int [ref: > patients.id]
+  caller_phone varchar
+  emergency_type varchar
+  severity varchar
+  address_id int [ref: > addresses.id]
+  ambulance_id int [ref: > ambulances.id]
+  facility_id int [ref: > facilities.id]
+  status varchar
+  created_at timestamptz
+}
+
+Table payments {
+  id int [pk, increment]
+  patient_id int [ref: > patients.id]
+  facility_id int [ref: > facilities.id]
+  service_type varchar
+  service_id int
+  amount numeric
+  currency char(3)
+  payment_method varchar
+  insurance_coverage numeric
+  patient_copay numeric
+  status varchar
+  payment_date timestamptz
+  created_at timestamptz
+}
+
+Table team_integrations {
+  id int [pk, increment]
+  team_name varchar
+  external_table varchar
+  external_id varchar
+  data_type varchar
+  status varchar
+  additional_data jsonb
+  created_at timestamptz
+}
+
+/* G11: Wallets & Cards */
+Table wallets {
+  id int [pk, increment]
+  owner_id int [ref: > users.id]
+  wallet_type wallet_type
+  organization_type varchar
+  balance numeric
+  status wallet_status
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table wallet_transactions {
+  id int [pk, increment]
+  wallet_id int [ref: > wallets.id]
+  transaction_type transaction_type
+  amount numeric
+  target_wallet_id int [ref: > wallets.id]
+  target_service varchar
+  description varchar
+  created_at timestamptz
+}
+
+Table insurance_cards {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  balance numeric
+  card_number varchar
+  status wallet_status
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table metro_cards {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  balance numeric
+  card_number varchar
+  status wallet_status
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table card_transactions {
+  id int [pk, increment]
+  card_id int
+  card_type varchar
+  transaction_type card_transaction_type
+  transaction_category transaction_category
+  reference varchar
+  amount numeric
+  description varchar
+  created_at timestamptz
+}
+
+/* G10: Traffic */
+Table intersections {
+  id int [pk, increment]
+  location geometry
+}
+
+Table traffic_lights {
+  id int [pk, increment]
+  intersection_id int [ref: > intersections.id]
+  ip_address inet
+  location geometry
+  status boolean
+  current_color smallint
+  density_level smallint
+  auto_mode boolean
+  last_updated timestamptz
+}
+
+Table roads {
+  id int [pk, increment]
+  name varchar
+  start_intersection_id int [ref: > intersections.id]
+  end_intersection_id int [ref: > intersections.id]
+  length_meters int
+}
+
+Table light_requests {
+  id int [pk, increment]
+  traffic_light_id int [ref: > traffic_lights.id]
+  requested_at timestamptz
+}
+
+Table vehicles {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  current_location geometry
+  vehicle_plate varchar
+}
+
+Table traffic_emergencies {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  accident_location geometry
+  destination_hospital varchar
+  status varchar
+  ambulance_vehicle_id int [ref: > vehicles.id]
+  created_at timestamptz
+}
+
+/* G13: Emergency reports */
+Table report_categories {
+  id int [pk, increment]
+  name varchar
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table emergency_reports {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  image_url varchar
+  description text
+  location geometry
+  ambulance_service boolean
+  is_sos boolean
+  level report_level
+  status report_status
+  report_category_id int [ref: > report_categories.id]
+  created_at timestamptz
+  updated_at timestamptz
+}
 
 Table emergency_contacts {
-  contact_id int [pk, increment, not null]
-  user_id int [not null, ref: > users.id]
-  contact_name varchar(255) [not null]
-  phone varchar(10)
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  contact_name varchar
+  phone varchar
 }
 
-Table admin_noti {//add
-  admin_noti_id int [pk, increment, not null]
-  report_id int [not null, ref: > reports.report_id]
-  sent_at timestamp
+Table alerts {
+  id int [pk, increment]
+  report_id int [ref: > emergency_reports.id]
+  message text
+  area varchar
+  sent_at timestamptz
 }
 
-Table user_noti {//add
-  user_noti_id int [pk, increment, not null]
-  report_id int [not null, ref: > reports.report_id]
-  message text [not null]
-  area varchar(255)
-  status user_noti_status
-  sent_at timestamp
-}
-
-Table users_contacts {
-  contact_id int [pk, increment, not null]
-  user_id int [not null, ref: > users.id]
-  contact_user_id int [not null, ref: > users.id]
-}
-
+/* Messaging */
 Table conversations {
-  conversation_id int [pk, increment, not null]
-  conversation_name varchar(255)
-  created_at timestamp
+  id int [pk, increment]
+  conversation_name varchar
+  created_at timestamptz
+}
+
+Table conversation_participants {
+  conversation_id int [ref: > conversations.id]
+  user_id int [ref: > users.id]
+  Indexes {
+    (conversation_id, user_id) [pk]
+  }
 }
 
 Table messages {
-  message_id int [pk, increment, not null]
-  sender_id int [not null, ref: > users.id]
-  recipient_id int [not null, ref: > users.id]
+  id int [pk, increment]
+  conversation_id int [ref: > conversations.id]
+  sender_id int [ref: > users.id]
   message_text text
-  sent_at timestamp
-  conversation_id int [not null, ref: > conversations.conversation_id]
+  sent_at timestamptz
 }
 
-// G5 Air Quality
-Enum categories {
-  GOOD
-  MODERATE
-  UNHEALTHY
-  HAZARDDOUS
-}
-
+/* G5: Air quality & G14: weather */
 Table air_quality {
   id int [pk, increment]
-  province varchar(255)
-  district varchar(255)
-  subdistrict varchar(255)
-  more_address_detail text
-  aqi decimal
-  pm25 decimal
-  pm10 decimal
-  co decimal
-  no2 decimal
-  so2 decimal
-  o3 decimal
-  category categories
-  created_at timestamp
+  location_id int [ref: > addresses.id]
+  aqi numeric
+  pm25 numeric
+  pm10 numeric
+  co numeric
+  no2 numeric
+  so2 numeric
+  o3 numeric
+  category air_quality_category
+  measured_at timestamptz
 }
 
-Table weather_context {
+Table weather_data {
   id int [pk, increment]
-  rain_forecast decimal
-  created_at timestamp
+  location_id int [ref: > addresses.id]
+  temperature numeric
+  feel_temperature numeric
+  humidity numeric
+  wind_speed numeric
+  wind_direction varchar
+  rainfall_probability numeric
+  created_at timestamptz
+  updated_at timestamptz
 }
 
-Table traffic_context {
+/* G8: Transportation */
+Table digital_cards {
   id int [pk, increment]
-  congestion_level decimal
-  created_at timestamp
-}
-
-// G8 Transportation
-enum transportation_digital_card_status {
-  active
-  inactive
-}
-
-table digital_card {
-  card_id int [pk, increment]
   user_id int [ref: > users.id]
-  status transportation_digital_card_status
+  status varchar
 }
 
-enum transportation_card_transaction_status {
-  pending
-  confirmed
-  failed
+Table transportation_vehicle_types {
+  id int [pk, increment]
+  name varchar
 }
 
-table transportation_vehicle_type {
-  type_id int [pk, increment]
-  type_name varchar(100)
+Table routes {
+  id int [pk, increment]
+  route_name varchar
+  vehicle_type_id int [ref: > transportation_vehicle_types.id]
 }
 
-table route {
-  route_id int [pk, increment]
-  route_name varchar(255)
-  type_id int [ref: > transportation_vehicle_type.type_id]
+Table stops {
+  id int [pk, increment]
+  name varchar
+  location geometry
 }
 
-table transportation_card_transaction {
-  transaction_id int [pk, increment]
-  card_id int [ref: > digital_card.card_id]
-  route_id int [ref: > route.route_id]
-  amount decimal
-  status transportation_card_transaction_status
-  timestamp timestamp
-}
-
-enum transportation_vehicle_status {
-  active
-  maintenance
-}
-
-table transportation_vehicle {
-  vehicle_id int [pk, increment]
-  type_id int [ref: > transportation_vehicle_type.type_id]
-  route_id int [ref: > route.route_id]
-  current_latitude varchar(100)
-  current_longitude varchar(100)
-  status transportation_vehicle_status
-}
-
-table stop {
-  stop_id int [pk, increment]
-  stop_name varchar(255)
-  stop_latitude varchar(100)
-  stop_longitude varchar(100)
-}
-
-table route_stop {
-  route_stop_id int [pk, increment]
-  route_id int [ref: > route.route_id]
-  stop_id int [ref: > stop.stop_id]
+Table route_stops {
+  id int [pk, increment]
+  route_id int [ref: > routes.id]
+  stop_id int [ref: > stops.id]
   stop_order int
-  travel_time_to_next_stop int [note: "record in minutes"]
+  travel_time_to_next_stop int
 }
 
-table transportation_user_request {
-  request_id int [pk, increment]
-  user_id int [ref: > users.id]
-  origin_stop_id int [ref: > stop.stop_id]
-  destination_stop_id int [ref: > stop.stop_id]
-  fastest_route_id int [ref: > route.route_id]
-  total_travel_time int [note: "record in minutes"]
-  timestamp timestamp
-}
-
-// G9 Find Apartment
-Table apartment {
+Table transportation_transactions {
   id int [pk, increment]
-  apartment_name varchar(255)
-  apartment_rating decimal
-  apartment_phone varchar(15)
+  card_id int [ref: > digital_cards.id]
+  route_id int [ref: > routes.id]
+  amount numeric
+  status varchar
+  created_at timestamptz
 }
 
-Table apartment_address {
+/* G9: Apartments & POI */
+Table apartments {
   id int [pk, increment]
-  apartment_id int [ref: - apartment.id]
-  apartment_latitude decimal
-  apartment_longitude decimal
-  province varchar(255)
-  district varchar(255)
-  sub_district varchar(255)
-  zip_code varchar(255)
-  more_address_detail text [note: 'apartment number, road, etc.']
-  created_at timestamp
-  updated_at timestamp
+  name varchar
+  rating numeric
+  phone varchar
 }
 
-Table poi_categories{
+Table apartment_addresses {
   id int [pk, increment]
-  category_name varchar(255)
-  created_at timestamp
-  updated_at timestamp
+  apartment_id int [ref: > apartments.id]
+  address_id int [ref: > addresses.id]
+  created_at timestamptz
+  updated_at timestamptz
 }
 
-Table poi_location {
+Table poi_categories {
   id int [pk, increment]
-  poi_name varchar(255)
-  poi_latitude decimal
-  poi_longitude decimal
+  category_name varchar
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table poi_locations {
+  id int [pk, increment]
+  name varchar
+  location geometry
   category_id int [ref: > poi_categories.id]
 }
 
-// G15 Waste Management
-Table waste_type {
+/* G15: Waste management */
+Table waste_types {
   id int [pk, increment]
-  type_name varchar(255)
-  weight decimal
+  type_name varchar
+  typical_weight_kg numeric
 }
 
-Table waste_event_statistic {
+Table waste_event_statistics {
   id int [pk, increment]
-  event_id int [ref: > event.id]
-  waste_type_id int [ref: > waste_type.id]
-  collection_date timestamp
-  total_collection_weight decimal
+  event_id int [ref: > events.id]
+  waste_type_id int [ref: > waste_types.id]
+  collection_date timestamptz
+  total_collection_weight numeric
 }
 
-Table power_bi_report {
+Table power_bi_reports {
   id int [pk, increment]
-  waste_event_statistic_id int [ref: > waste_event_statistic.id]
-  report_type varchar(255)
-  report_date timestamp
+  waste_event_statistic_id int [ref: > waste_event_statistics.id]
+  report_type varchar
+  report_date timestamptz
+  created_at timestamptz
 }
 
-// G7 Power BI Report Management
+/* G7: BI dims/facts */
 Table dim_time {
-  time_id int [pk, increment]
-  date timestamp
+  id int [pk, increment]
+  date date
   year int
   month int
   day int
   hour int
-  week_a_day varchar(255)
+  week_day varchar
 }
 
 Table dim_location {
-  location_id int [pk, increment]
-  province varchar(255)
-  district varchar(255)
-  subdistrict varchar(255)
-  latitude decimal
-  longitude decimal
+  id int [pk, increment]
+  address_id int [ref: > addresses.id]
 }
 
 Table dim_facility {
-  facility_id int [pk, increment]
-  facility_type varchar(255)
-  facility_name varchar(255)
-  location_id int [ref: > dim_location.location_id]
+  id int [pk, increment]
+  facility_id int [ref: > facilities.id]
 }
 
 Table fact_traffic {
-  traffic_id int [pk, increment]
-  time_id int [ref: > dim_time.time_id]
-  location_id int [ref: > dim_location.location_id]
-  speed_kmh decimal
+  id int [pk, increment]
+  time_id int [ref: > dim_time.id]
+  location_id int [ref: > dim_location.id]
+  speed_kmh numeric
   accident_flag boolean
   closure_flag boolean
 }
 
 Table fact_waste {
-  waste_id int [pk, increment]
-  time_id int [ref: > dim_time.time_id]
-  location_id int [ref: > dim_location.location_id]
+  id int [pk, increment]
+  time_id int [ref: > dim_time.id]
+  location_id int [ref: > dim_location.id]
   bin_fill_level_percent int
-  recycling_tonnage decimal
+  recycling_tonnage numeric
 }
 
 Table fact_healthcare {
-  health_id int [pk, increment]
-  time_id int [ref: > dim_time.time_id]
-  facility_id int [ref: > dim_facility.facility_id]
+  id int [pk, increment]
+  time_id int [ref: > dim_time.id]
+  facility_id int [ref: > dim_facility.id]
   wait_time_minutes int
-  alert_type varchar(255)
+  alert_type varchar
   cases_reported int
 }
 
-Table fact_weather {
-  weather_id int [pk, increment]
-  time_id int [ref: > dim_time.time_id]
-  location_id int [ref: > dim_location.location_id]
-  temperature decimal
-  aqi int
-  warning_flag boolean
-}
-
-Table fact_demographic {
-  demographic_id int [pk, increment]
-  time_id int [ref: > dim_time.time_id]
-  location_id int [ref: > dim_location.location_id]
-  population_total int
-}
-
-Table dim_user {
-  user_id int [pk, increment]
-  role varchar
-  department varchar
-}
-
-Table dim_category {
-  category_id int [pk, increment]
-  category_name varchar(255)
-}
-
 Table report_metadata {
-  report_id int [pk, increment]
-  title varchar(255)
-  description varchar(255)
-  category_id int [ref: > dim_category.category_id]
-  created_by int [ref: > dim_user.user_id]
-  last_updated timestamp
+  id int [pk, increment]
+  title varchar
+  description text
+  category_id int [ref: > poi_categories.id]
+  created_by_user_id int [ref: > users.id]
+  last_updated timestamptz
 }
 
-// G16 Community map
-Table marker_type {
+
+/* G16 Community Map */
+Table marker {
   id int [pk, increment]
-  marker_icon varchar(255)
-  marker_color varchar(255)
+  markerTypeID int
+  description text
+  location geometry //PostGIS Point(4326)
   created_at timestamp
   updated_at timestamp
 }
 
-Table map_marker {
+Table markerType {
   id int [pk, increment]
-  marker_type_id int [ref: > marker_type.id]
-  display_name varchar(255)
-  description varchar(255)
-  created_at timestamp
-  updated_at timestamp
-}
-
-// G14 Weather report
-Table weather_data {
-  id int [pk, increment]
-  temperature decimal
-  feel_temperature decimal
-  humidity decimal
-  wind decimal
-  wind_direction varchar(255)
-  rainfall_probability decimal
+  markerTypeIcon varchar(255)
+  markerTypeColor varchar(255)
   created_at timestamp
   updated_at timestamp
 }
