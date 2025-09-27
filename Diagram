@@ -760,7 +760,7 @@ Table report_metadata {
 /* G16 Community Map */
 Table marker {
   id int [pk, increment]
-  markerTypeID int
+  markerTypeID int [ref: - marker_type.id]
   description text
   location geometry //PostGIS Point(4326)
   created_at timestamp
