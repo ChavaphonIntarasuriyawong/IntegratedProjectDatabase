@@ -36,7 +36,43 @@ A centralized, reusable table for storing physical addresses and geographic coor
 | `location` | `GEOMETRY(Point, 4326)` | Geographic coordinates (longitude, latitude) using PostGIS SRID 4326. | GIST Index for spatial queries |
 | `created_at` | `TIMESTAMPTZ` | Timestamp of creation. | `NOT NULL`, Default: `now()` |
 | `updated_at` | `TIMESTAMPTZ` | Timestamp of the last update. | `NOT NULL`, Default: `now()` |
+---
+### `example of how to use PostGSI`
 
+**Document: https://postgis.net/docs/manual-3.6/reference.html#PostGIS_Types**
+
+**Example of Prisma data model**
+```
+model Address {
+  id          Int      @id @default(autoincrement())
+  addressLine String
+  province    String
+  district    String
+  postalCode  String
+  location    Bytes    // <-- store geometry here
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+}
+```
+**inserting**
+```
+await prisma.$executeRaw`
+  INSERT INTO "Address" (addressLine, province, district, postalCode, location)
+  VALUES (${line}, ${province}, ${district}, ${postal}, ST_SetSRID(ST_MakePoint(${lon}, ${lat}), 4326))
+`;
+```
+**querying with 5 km**
+```
+const nearby = await prisma.$queryRaw`
+  SELECT * FROM "Address"
+  WHERE ST_DWithin(
+    location,
+    ST_SetSRID(ST_MakePoint(${lon}, ${lat}), 4326),
+    5000
+  )
+`;
+```
+---
 ### Table: `users`
 Stores core authentication credentials and essential user information. Personal details are normalized into `user_profiles`.
 | Column | Data Type | Description | Constraints / Notes |
