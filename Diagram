@@ -615,6 +615,7 @@ Table users_contacts {
 Table conversations {
   conversation_id int [pk, increment, not null]
   conversation_name varchar(255)
+  created_at timestamp
 }
 
 Table messages {
