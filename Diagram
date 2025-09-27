@@ -49,6 +49,23 @@ Table users_departments {
   department_id int [pk, ref: > departments.id]
 }
 
+// Authentication
+Table sessions {
+  session_id varchar(255)
+  user_id int [ref: - users.id]
+  created_at timestamp
+  expires_at timestamp
+  last_accessed timestamp
+}
+
+Table refresh_tokens {
+  id int [pk, increment]
+  user_id int [ref: - users.id]
+  refresh_token varchar[512]
+  created_at timestamp
+  expires_at timestamp
+}
+
 // G4 Freecycle
 Table freecycle_posts {
   id int [pk, increment]
@@ -57,7 +74,6 @@ Table freecycle_posts {
   photo_url text [not null]
   description text [not null]
   donater_id int [not null, ref: > users.id]
-  receiver_id int [ref: > users.id]
   donate_to_department_id int [ref: > departments.id]
   is_given boolean [default: false]
   created_at timestamp
@@ -76,6 +92,21 @@ Table freecycle_posts_categories {
   category_id int [pk, ref: > freecycle_categories.id]
 }
 
+Enum freecycle_request_status {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+Table receiver_requests {
+  id int [pk, increment]
+  post_id int [ref: > freecycle_posts.id]
+  receiver_id int [ref: > users.id]
+  status freecycle_request_status [default: 'PENDING']
+  created_at timestamp
+  updated_at timestamp
+}
+
 // G6 Volunteer
 Enum volunteer_event_status {
   DRAFT
@@ -87,7 +118,8 @@ Enum volunteer_event_status {
 Table volunteer_events {
   id int [pk, increment]
   user_created_event_id int [ref: > users.id]
-  for_department id [ref: < departments.id]
+  for_department id [ref: - departments.id]
+  image text
   title varchar(255) [not null]
   description text [not null]
   current_participator int [default: 0, not null]
@@ -121,6 +153,7 @@ Enum course_types {
 
 Table courses {
   id int [pk, increment]
+  author_id int [ref: > users.id]
   course_name varchar(255) [not null]
   course_description text [not null]
   course_type course_types [not null]
@@ -166,6 +199,7 @@ Table onsite_enrollments {
 Table questions {
   id int [pk, increment]
   question text
+  level int
   created_at timestamp
   updated_at timestamp
 }
@@ -180,10 +214,17 @@ Table user_exercises {
   updated_at timestamp
 }
 
+Table user_level {
+  user_id int [ref: - users.id]
+  current_lv int
+}
+
 // G3 Event Hub
 Table event {
   id int [pk, increment]
   host_event_id int [ref: > users.id]
+  from_department in [ref: - departments.id]
+  image text
   title varchar(255)
   description varchar(255)
   avaliable_seat int
@@ -197,8 +238,6 @@ Table event {
   created_at timestamp
   updated_at timestamp
 }
-
-
 
 Table bookmark {
   user_id int [pk, ref: > users.id]
@@ -432,6 +471,9 @@ Table transaction {
 // G10 Traffic
 Table traffic_light {
   light_id int [pk, increment]
+  intersection_id int [ref: < intersection.intersection_id]
+  road_id int [ref: < road.road_id]
+  ip_address varchar(255)
   latitude varchar(100)
   longitude varchar(100)
   status boolean
@@ -858,6 +900,19 @@ Table map_marker {
   marker_type_id int [ref: > marker_type.id]
   display_name varchar(255)
   description varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+// G14 Weather report
+Table weather_data {
+  id int [pk, increment]
+  temperature decimal
+  feel_temperature decimal
+  humidity decimal
+  wind decimal
+  wind_direction varchar(255)
+  rainfall_probability decimal
   created_at timestamp
   updated_at timestamp
 }
