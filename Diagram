@@ -1,7 +1,7 @@
 //// -----------------------------------------------------------
 //// -- Project: Smart City DB
 //// -- Database: PostgreSQL
-//// -- Last Updated: 2025-09-23
+//// -- Last Updated: 2025-09-27
 //// -----------------------------------------------------------
 
 // User Features
@@ -535,16 +535,27 @@ Enum level {
   lethal
 }
 
+Enum report_category {
+  traffic
+  disaster
+  crime
+}// change to use table dynamic
+
+Enum user_noti_status {
+  read
+  unread
+  sent
+}
+
 Enum report_status {
   pending
   verified
   resolved
 }
 
-Enum report_category {
-  traffic
-  disaster
-  crime
+Enum sos_status {//add
+  open
+  closed
 }
 
 Table reports {
@@ -552,14 +563,26 @@ Table reports {
   user_id int [not null, ref: > users.id]
   image varchar(255) [not null]
   description varchar(255) [not null]
-  latitude varchar(255) [not null]
-  longitude varchar(255) [not null]
+  latitude decimal(10,6)// change
+  longitude decimal(10,6)// change
   level level
-  status report_status
+  ambulance_service boolean [default: false]//add
+  status report_status [default: "pending"]// add
   category report_category
   updated_at timestamp
   created_at timestamp
 }
+
+Table sos {// add
+  sos_id int [pk, increment, not null]
+  user_id int [not null, ref: > users.id]
+  latitude decimal(10,6)
+  longitude decimal(10,6)
+  status sos_status [default: "open"]
+  created_at timestamp
+  updated_at timestamp
+}
+
 
 Table emergency_contacts {
   contact_id int [pk, increment, not null]
@@ -568,11 +591,18 @@ Table emergency_contacts {
   phone varchar(10)
 }
 
-Table alerts {
-  alert_id int [pk, increment, not null]
+Table admin_noti {//add
+  admin_noti_id int [pk, increment, not null]
+  report_id int [not null, ref: > reports.report_id]
+  sent_at timestamp
+}
+
+Table user_noti {//add
+  user_noti_id int [pk, increment, not null]
   report_id int [not null, ref: > reports.report_id]
   message text [not null]
   area varchar(255)
+  status user_noti_status
   sent_at timestamp
 }
 
@@ -585,6 +615,7 @@ Table users_contacts {
 Table conversations {
   conversation_id int [pk, increment, not null]
   conversation_name varchar(255)
+  created_at timestamp
 }
 
 Table messages {
