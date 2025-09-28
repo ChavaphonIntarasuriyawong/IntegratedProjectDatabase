@@ -1,6 +1,6 @@
 //// -----------------------------------------------------------
 //// -- Project: Smart City DB
-//// -- Database: Firebase RTDB and PostgreSQL with PostGIS
+//// -- Database: PostgreSQL with PostGIS
 //// -- Last Updated: 2025-09-27
 //// -----------------------------------------------------------
 
@@ -77,6 +77,11 @@ Enum report_status {
   pending
   verified
   resolved
+}
+
+Enum sos_status {
+  open
+  closed
 }
 
 /* Core lookups */
@@ -550,10 +555,30 @@ Table emergency_contacts {
 Table alerts {
   id int [pk, increment]
   report_id int [ref: > emergency_reports.id]
+  user_id int [ref: > users.id]
   message text
-  area varchar
+  area geometry
   sent_at timestamptz
 }
+
+Table sos {
+  sos_id int [pk, increment, not null]
+  user_id int [not null, ref: > users.id]
+  location geometry
+  status sos_status [default: "open"]
+  created_at timestamp
+  updated_at timestamp
+}
+
+
+Table fcm_tokens{
+  id int [pk, increment]
+  user_id int [ref: - users.id]
+  fcm_tokens text
+  created_at timestamp
+  updated_at timestamp
+}
+
 
 /* Messaging */
 Table conversations {
@@ -767,7 +792,7 @@ Table marker {
   updated_at timestamp
 }
 
-Table markerType {
+Table marker_type {
   id int [pk, increment]
   markerTypeIcon varchar(255)
   markerTypeColor varchar(255)
