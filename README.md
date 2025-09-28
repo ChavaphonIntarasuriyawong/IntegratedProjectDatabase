@@ -851,7 +851,7 @@ Stores SOS information.
 | :--- | :--- | :--- | :--- |
 | `id` | `INT` | Unique identifier for the alert. | **Primary Key** (Generated) |
 | `user_id` | `INT` | The user who sent the alert. | Foreign Key to `users(id)` |
-| `status` | `sos_status` | Sos status from the enum ('open', 'closed'). | |
+| `status` | `sos_status` | Sos status from the enum ('open', 'closed'). | Default: `open`|
 | `location` | `GEOMETRY(Point, 4326)` | The geographical area the alert was sent to. | |
 | `created_at` | `TIMESTAMP` | Timestamp when the sos was created. | |
 | `updated_at` | `TIMESTAMP` | Timestamp when the sos was last updated. | |
