@@ -84,6 +84,12 @@ Enum sos_status {
   closed
 }
 
+Enum alert_status {
+  read
+  unread
+  sent
+}
+
 /* Core lookups */
 Table roles {
   id int [pk, increment]
@@ -557,6 +563,7 @@ Table alerts {
   report_id int [ref: > emergency_reports.id]
   user_id int [ref: > users.id]
   message text
+  status alert_status
   area geometry
   sent_at timestamptz
 }
