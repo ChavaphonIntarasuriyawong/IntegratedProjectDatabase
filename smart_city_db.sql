@@ -60,6 +60,10 @@ DO $$ BEGIN
     CREATE TYPE report_status AS ENUM ('pending','verified','resolved');
 EXCEPTION WHEN duplicate_object THEN NULL; END$$;
 
+DO $$ BEGIN
+    CREATE TYPE sos_status AS ENUM ('open','closed');
+EXCEPTION WHEN duplicate_object THEN NULL; END$$;
+
 -- Core lookup tables
 CREATE TABLE IF NOT EXISTS roles (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -509,7 +513,6 @@ CREATE TABLE IF NOT EXISTS emergency_reports (
     description TEXT,
     location geometry(Point,4326),
     ambulance_service BOOLEAN DEFAULT FALSE,
-    is_sos BOOLEAN DEFAULT FALSE,
     level report_level,
     status report_status DEFAULT 'pending',
     report_category_id INT REFERENCES report_categories(id) ON DELETE SET NULL,
@@ -527,9 +530,26 @@ CREATE TABLE IF NOT EXISTS emergency_contacts (
 CREATE TABLE IF NOT EXISTS alerts (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     report_id INT REFERENCES emergency_reports(id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
     message TEXT NOT NULL,
-    area VARCHAR(255),
+    location geometry(Point,4326), -- longitude/latitude as Point
     sent_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS fcm_token (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    created_at timestamptz DEFAULT now(),
+    updated_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS sos (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    location geometry(Point,4326), -- longitude/latitude as Point
+    status sos_status,
+    created_at timestamptz DEFAULT now(),
+    updated_at timestamptz DEFAULT now()
 );
 
 -- Messaging & conversations
