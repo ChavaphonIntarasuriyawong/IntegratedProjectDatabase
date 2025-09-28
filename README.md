@@ -1,7 +1,7 @@
 # Smart City DB Data Dictionary
 * **Project:** Smart City DB
 * **Database:** Firebase RTDB and PostgreSQL with PostGIS
-* **Last Updated:** 2025-09-27
+* **Last Updated:** 2025-09-28
 ---
 
 ## Core Infrastructure & Users
@@ -842,6 +842,7 @@ Stores alerts sent out based on verified emergency reports.
 | `user_id` | `INT` | The user who sent the alert. | Foreign Key to `users(id)` |
 | `message` | `TEXT` | The content of the alert message. | `NOT NULL` |
 | `area` | `GEOMETRY(Point, 4326)` | The geographical area the alert was sent to. | |
+| `status` | `alert_status` | Alert status from the enum ('unread', 'read', 'sent'). | Default: `unread`|
 | `sent_at` | `TIMESTAMPTZ` | Timestamp when the alert was sent. | Default: `now()` |
 
 
