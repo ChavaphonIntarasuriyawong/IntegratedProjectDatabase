@@ -818,7 +818,6 @@ Stores emergency reports submitted by users.
 | `description` | `TEXT` | A description of the incident. | |
 | `location` | `GEOMETRY(Point, 4326)` | The geographic location of the incident. | GIST Index for spatial queries |
 | `ambulance_service` | `BOOLEAN` | Flag indicating if ambulance service is requested. | Default: `FALSE` |
-| `is_sos` | `BOOLEAN` | Flag indicating if this is an SOS/panic button alert. | Default: `FALSE` |
 | `level` | `report_level` | The severity level of the report. | |
 | `status` | `report_status` | The current status of the report ('pending', 'verified', 'resolved'). | Default: `'pending'` |
 | `report_category_id` | `INT` | The category of the report. | Foreign Key to `report_categories(id)` |
@@ -840,9 +839,33 @@ Stores alerts sent out based on verified emergency reports.
 | :--- | :--- | :--- | :--- |
 | `id` | `INT` | Unique identifier for the alert. | **Primary Key** (Generated) |
 | `report_id` | `INT` | The report that triggered the alert. | Foreign Key to `emergency_reports(id)` |
+| `user_id` | `INT` | The user who sent the alert. | Foreign Key to `users(id)` |
 | `message` | `TEXT` | The content of the alert message. | `NOT NULL` |
-| `area` | `VARCHAR(255)` | The geographical area the alert was sent to. | |
+| `area` | `GEOMETRY(Point, 4326)` | The geographical area the alert was sent to. | |
 | `sent_at` | `TIMESTAMPTZ` | Timestamp when the alert was sent. | Default: `now()` |
+
+
+### Table: `sos`
+Stores SOS information.
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `id` | `INT` | Unique identifier for the alert. | **Primary Key** (Generated) |
+| `user_id` | `INT` | The user who sent the alert. | Foreign Key to `users(id)` |
+| `status` | `sos_status` | Sos status from the enum ('open', 'closed'). | |
+| `location` | `GEOMETRY(Point, 4326)` | The geographical area the alert was sent to. | |
+| `created_at` | `TIMESTAMP` | Timestamp when the sos was created. | |
+| `updated_at` | `TIMESTAMP` | Timestamp when the sos was last updated. | |
+
+
+### Table: `fcm_tokens`
+Stores fcm token.
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `id` | `INT` | Unique identifier for the alert. | **Primary Key** (Generated) |
+| `user_id` | `INT` | The user who has fcm token. | Foreign Key to `users(id)` |
+| `fcm_token` | `TEXT` | store fcm token. | |
+| `created_at` | `TIMESTAMP` | Timestamp when the fcm token was created. | |
+| `updated_at` | `TIMESTAMP` | Timestamp when the fcm token was last updated. | |
 
 ### Table: `conversations`
 Stores information about chat conversations.
