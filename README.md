@@ -1,6 +1,6 @@
 # Smart City DB Data Dictionary
 * **Project:** Smart City DB
-* **Database:** PostgreSQL with PostGIS
+* **Database:** Firebase RTDB and PostgreSQL with PostGIS
 * **Last Updated:** 2025-09-27
 ---
 
@@ -294,7 +294,7 @@ Tracks requests from users to receive a donated item.
 
 ---
 
-## G5: Air Quality & G14: Weather Report
+## G5: Air Quality & G14: Weather Report ((Firebase RTDB))
 Tables for storing and contextualizing air quality and weather data.
 
 ### Table: `air_quality`
@@ -537,7 +537,7 @@ Stores information about specific Points of Interest.
 
 ---
 
-## G10: Traffic Domain
+## G10: Traffic Domain (Firebase RTDB)
 Tables for managing traffic infrastructure and emergency traffic requests.
 
 ### Table: `intersections`
@@ -902,7 +902,7 @@ Links waste statistics to Power BI reports.
 | `report_date` | `TIMESTAMPTZ` | The date the report was generated. | |
 | `created_at` | `TIMESTAMPTZ` | Timestamp of link creation. | `NOT NULL`, Default: `now()`
 
-## G16: Community Map
+## G16: Community Map (Firebase RTDB)
 Tables for managing custom markers on a community map.
 
 ### Table: `marker_type`
