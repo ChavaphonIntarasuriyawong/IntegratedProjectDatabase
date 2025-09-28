@@ -1,6 +1,6 @@
 //// -----------------------------------------------------------
 //// -- Project: Smart City DB
-//// -- Database: PostgreSQL with PostGIS
+//// -- Database: Firebase RTDB and PostgreSQL with PostGIS
 //// -- Last Updated: 2025-09-27
 //// -----------------------------------------------------------
 
