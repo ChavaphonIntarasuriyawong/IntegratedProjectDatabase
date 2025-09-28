@@ -37,7 +37,7 @@ A centralized, reusable table for storing physical addresses and geographic coor
 | `created_at` | `TIMESTAMPTZ` | Timestamp of creation. | `NOT NULL`, Default: `now()` |
 | `updated_at` | `TIMESTAMPTZ` | Timestamp of the last update. | `NOT NULL`, Default: `now()` |
 ---
-### `example of how to use PostGSI`
+### `Example of how to use PostGIS`
 
 **Document: https://postgis.net/docs/manual-3.6/reference.html#PostGIS_Types**
 
