@@ -547,7 +547,7 @@ CREATE TABLE IF NOT EXISTS sos (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     location geometry(Point,4326), -- longitude/latitude as Point
-    status sos_status,
+    status sos_status DEFAULT 'open',
     created_at timestamptz DEFAULT now(),
     updated_at timestamptz DEFAULT now()
 );
