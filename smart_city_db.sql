@@ -64,6 +64,10 @@ DO $$ BEGIN
     CREATE TYPE sos_status AS ENUM ('open','closed');
 EXCEPTION WHEN duplicate_object THEN NULL; END$$;
 
+DO $$ BEGIN
+    CREATE TYPE alert_status AS ENUM ('unread','read', 'sent');
+EXCEPTION WHEN duplicate_object THEN NULL; END$$;
+
 -- Core lookup tables
 CREATE TABLE IF NOT EXISTS roles (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -532,6 +536,7 @@ CREATE TABLE IF NOT EXISTS alerts (
     report_id INT REFERENCES emergency_reports(id) ON DELETE CASCADE,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     message TEXT NOT NULL,
+    status alert_status DEFAULT 'unread',
     location geometry(Point,4326), -- longitude/latitude as Point
     sent_at timestamptz DEFAULT now()
 );
