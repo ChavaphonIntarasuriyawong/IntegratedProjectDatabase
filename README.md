@@ -947,6 +947,7 @@ Stores information about individual map markers placed by users or admins.
 | `marker_type_id` | `INT` | The type of this marker. | Foreign Key to `marker_type.id` |
 | `display_name` | `VARCHAR(255)` | The name or title displayed for the marker. | |
 | `description` | `VARCHAR(255)` | A description for the marker. | |
+| `location` | `geometry` | Location of the marker respective to the world | PostGIS Point(4326) |
 | `created_at` | `TIMESTAMP` | Timestamp when the marker was created. | |
 | `updated_at` | `TIMESTAMP` | Timestamp when the marker was last updated. | |
 
