@@ -553,9 +553,10 @@ Stores the status and data for individual traffic lights.
 | :--- | :--- | :--- | :--- |
 | `id` | `INT` | Unique identifier for the traffic light. | **Primary Key** (Generated) |
 | `intersection_id` | `INT` | The intersection where the light is located. | Foreign Key to `intersections(id)` |
+| `road_id` | | `INT` | The road where the light is located. | Foreign Key to `roads(is)` |
 | `ip_address` | `INET` | The IP address for network control of the light. | |
 | `location` | `GEOMETRY(Point, 4326)` | The precise geographic coordinates of the light. | GIST Index for spatial queries |
-| `status` | `BOOLEAN` | The operational status of the light (true=on/false=off). | Default: `TRUE` |
+| `status` | `INT` | The operational status of the light. | |
 | `current_color` | `SMALLINT` | The current color of the light (e.g., 1 for red). | |
 | `density_level` | `SMALLINT` | A metric for traffic density at the light. | |
 | `auto_mode` | `BOOLEAN` | Flag indicating if the light is in automatic mode. | Default: `TRUE` |
