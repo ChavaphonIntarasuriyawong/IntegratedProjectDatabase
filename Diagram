@@ -1,7 +1,7 @@
 //// -----------------------------------------------------------
 //// -- Project: Smart City DB
 //// -- Database: PostgreSQL with PostGIS
-//// -- Last Updated: 2025-09-29
+//// -- Last Updated: 2025-10-4
 //// -----------------------------------------------------------
 
 
@@ -488,9 +488,10 @@ Table intersections {
 Table traffic_lights {
   id int [pk, increment]
   intersection_id int [ref: > intersections.id]
+  road_id int [ref: > roads.id]
   ip_address inet
   location geometry
-  status boolean
+  status int
   current_color smallint
   density_level smallint
   auto_mode boolean
