@@ -1,7 +1,7 @@
 # Smart City DB Data Dictionary
 * **Project:** Smart City DB
 * **Database:** Firebase RTDB and PostgreSQL with PostGIS
-* **Last Updated:** 2025-09-28
+* **Last Updated:** 2025-10-5
 ---
 
 ## Core Infrastructure & Users
@@ -372,7 +372,7 @@ Tracks which users are participating in which volunteer events.
 
 ---
 
-## G7: Business Intelligence (BI)
+## G7: Business Intelligence (BI) (Firebase RTDB)
 A simplified star schema with dimension and fact tables for data analysis and reporting.
 
 ### Table: `dim_time`
@@ -592,8 +592,9 @@ Tables for managing traffic infrastructure and emergency traffic requests.
 Stores location data for road intersections.
 | Column | Data Type | Description | Constraints / Notes |
 | :--- | :--- | :--- | :--- |
-| `id` | `INT` | Unique identifier for the intersection. | **Primary Key** (Generated) |
-| `location` | `GEOMETRY(Point, 4326)` | The geographic coordinates of the intersection. | |
+| `id` | `INT` | Unique identifier for the intersection. ||
+| `latitude` | `NUMERIC` | Latitude. | |
+| `longitude` | `NUMERIC` | Longitude. | |
 
 ### Table: `traffic_lights`
 Stores the status and data for individual traffic lights.
@@ -603,7 +604,8 @@ Stores the status and data for individual traffic lights.
 | `intersection_id` | `INT` | The intersection where the light is located. | Foreign Key to `intersections(id)` |
 | `road_id` | | `INT` | The road where the light is located. | Foreign Key to `roads(is)` |
 | `ip_address` | `INET` | The IP address for network control of the light. | |
-| `location` | `GEOMETRY(Point, 4326)` | The precise geographic coordinates of the light. | GIST Index for spatial queries |
+| `latitude` | `NUMERIC` | Latitude. | |
+| `longitude` | `NUMERIC` | Longitude. | |
 | `status` | `INT` | The operational status of the light. | |
 | `current_color` | `SMALLINT` | The current color of the light (e.g., 1 for red). | |
 | `density_level` | `SMALLINT` | A metric for traffic density at the light. | |
@@ -634,7 +636,8 @@ Stores information about user-registered or system-tracked vehicles.
 | :--- | :--- | :--- | :--- |
 | `id` | `INT` | Unique identifier for the vehicle. | **Primary Key** (Generated) |
 | `user_id` | `INT` | The user who owns the vehicle. | Foreign Key to `users(id)` |
-| `current_location` | `GEOMETRY(Point, 4326)` | The last known geographic location of the vehicle. | |
+| `latitude` | `NUMERIC` | Latitude. | |
+| `longitude` | `NUMERIC` | Longitude. | |
 | `vehicle_plate` | `VARCHAR(20)` | The license plate of the vehicle. | |
 
 ### Table: `traffic_emergencies`
