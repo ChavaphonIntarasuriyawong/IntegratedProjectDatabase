@@ -464,7 +464,7 @@ CREATE TABLE IF NOT EXISTS traffic_lights (
     intersection_id INT REFERENCES intersections(id) ON DELETE SET NULL,
     ip_address INET,
     location geometry(Point,4326),
-    status BOOLEAN DEFAULT TRUE,
+    status INT DEFAULT,
     current_color SMALLINT,
     density_level SMALLINT,
     auto_mode BOOLEAN DEFAULT TRUE,
