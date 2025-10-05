@@ -103,6 +103,11 @@ Table departments {
   updated_at timestamptz
 }
 
+Table specialty {
+  id int [pk, increment]
+  specialty varchar [not null, unique]
+}
+
 /* Addresses used by many entities */
 Table addresses {
   id int [pk, increment]
@@ -124,6 +129,7 @@ Table users {
   phone varchar [unique]
   password_hash varchar [not null]
   role_id int [ref: > roles.id]
+  specialty_id int [ref: > specialty.id]
   created_at timestamptz
   updated_at timestamptz
   last_login timestamptz
@@ -739,53 +745,84 @@ Table dim_time {
   year int
   month int
   day int
-  hour int
-  week_day varchar
+  hour int 
 }
 
 Table dim_location {
   id int [pk, increment]
-  address_id int [ref: > addresses.id]
+  district varchar
+  coordinates geometry //PostGIS Point(4326)
 }
 
 Table dim_facility {
   id int [pk, increment]
-  facility_id int [ref: > facilities.id]
+  facility_name varchar
+  location_id int [ref: > dim_location.id]
+}
+
+Table dim_waste_type {
+  id int [pk, increment]
+  waste_type_name  varchar [ref: - waste_types.type_name]
+}
+
+Table dim_category {
+  id int [pk, increment]
+  category_name string
+  category_description text
 }
 
 Table fact_traffic {
   id int [pk, increment]
   time_id int [ref: > dim_time.id]
   location_id int [ref: > dim_location.id]
-  speed_kmh numeric
-  accident_flag boolean
-  closure_flag boolean
+  vehicle_count int
+  has_accident_flag boolean
+  density_level numeric
 }
 
 Table fact_waste {
   id int [pk, increment]
   time_id int [ref: > dim_time.id]
   location_id int [ref: > dim_location.id]
-  bin_fill_level_percent int
-  recycling_tonnage numeric
+  waste_type_id int [ref: > dim_waste_type.id]
+  collection_weight_kg numeric
 }
 
 Table fact_healthcare {
   id int [pk, increment]
   time_id int [ref: > dim_time.id]
   facility_id int [ref: > dim_facility.id]
-  wait_time_minutes int
-  alert_type varchar
-  cases_reported int
+  avg_wait_time_minutes numeric
+  bed_occupancy_percent numeric
+  total_revenue numeric
+}
+
+Table fact_weather {
+  id int [pk, increment]
+  time_id int [ref: > dim_time.id]
+  location_id int [ref: > dim_location.id]
+  avg_aqi numeric
+  max_pm25 numeric
+  avg_temperature numeric
+}
+
+Table fact_population {
+  id int [pk, increment]
+  time_id int [ref: > dim_time.id]
+  location_id int [ref: > dim_location.id]
+  total_population int
+  population_density numeric
+  median_age numeric
 }
 
 Table report_metadata {
   id int [pk, increment]
   title varchar
   description text
-  category_id int [ref: > poi_categories.id]
+  category_id int [ref: > dim_category.id]
   created_by_user_id int [ref: > users.id]
   last_updated timestamptz
+  power_bi_report_id string
 }
 
 
