@@ -23,6 +23,13 @@ Stores information about various city departments or organizations.
 | `created_at` | `TIMESTAMPTZ` | Timestamp of creation. | `NOT NULL`, Default: `now()` |
 | `updated_at` | `TIMESTAMPTZ` | Timestamp of the last update. | `NOT NULL`, Default: `now()` |
 
+### Table: `specialty`
+Stores user specialty for filtering people
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `id` | `int` |  | **Primary Key** (Generated) |
+| `specialty` | `VARCHAR(50)` | The unique name of specialty | `NOT NULL`, `UNIQUE` |
+
 ### Table: `addresses`
 A centralized, reusable table for storing physical addresses and geographic coordinates for various entities like users, facilities, and events.
 | Column | Data Type | Description | Constraints / Notes |
@@ -83,6 +90,7 @@ Stores core authentication credentials and essential user information. Personal 
 | `phone` | `VARCHAR(20)` | The user's unique phone number. | `UNIQUE`, Indexed |
 | `password_hash` | `VARCHAR(512)` | The securely hashed password. | `NOT NULL` |
 | `role_id` | `INT` | The user's role. | Foreign Key to `roles(id)` |
+| `specialty_id` | `INT` | The user's specialty. | Foreign Key to `speicalty(id)` |
 | `created_at` | `TIMESTAMPTZ` | Timestamp of account creation. | `NOT NULL`, Default: `now()` |
 | `updated_at` | `TIMESTAMPTZ` | Timestamp of the last update. | `NOT NULL`, Default: `now()` |
 
@@ -384,7 +392,8 @@ A dimension table for location-based analysis, linking to the normalized address
 | Column | Data Type | Description | Constraints / Notes |
 | :--- | :--- | :--- | :--- |
 | `id` | `INT` | Unique identifier for the location dimension. | **Primary Key** (Generated) |
-| `address_id` | `INT` | Links to the full address details. | Foreign Key to `addresses(id)` |
+| `district` | `VARCHAR(255)` | District of the location. |  |
+| `coordinates` | `GEOMETRY(Point, 4326)` | Coordinates of the location. | Foreign Key to `dim_location(id)` |
 
 ### Table: `dim_facility`
 A dimension table for facilities, linking to the operational facilities table.
@@ -392,6 +401,22 @@ A dimension table for facilities, linking to the operational facilities table.
 | :--- | :--- | :--- | :--- |
 | `id` | `INT` | Unique identifier for the facility dimension. | **Primary Key** (Generated) |
 | `facility_id` | `INT` | Links to the operational facility record. | Foreign Key to `facilities(id)` |
+| `location_id` | `INT` | Location of the facility. | Foreign Key to `dim_location(id)` |
+
+### Table: `dim_waste_type`
+A dimension table for different types of waste
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `id` | `int` |  | **Primary Key** (Generated) |
+| `waste_type_name` | `VARCHAR(255)` | Name of the different types of waste. | Foreign Key to `waste_types(type_name)` |
+
+### Table: `dim_category`
+A dimension table for different types of report
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `id` | `int` |  | **Primary Key** (Generated) |
+| `category_name` | `VARCHAR(255)` | Name of the category. |  |
+| `category_description` | `TEXY` | Description of the category. |  |
 
 ### Table: `fact_traffic`
 A fact table storing traffic metrics.
@@ -400,9 +425,9 @@ A fact table storing traffic metrics.
 | `id` | `INT` | Unique identifier for the traffic fact. | **Primary Key** (Generated) |
 | `time_id` | `INT` | Reference to the time dimension. | Foreign Key to `dim_time(id)` |
 | `location_id` | `INT` | Reference to the location dimension. | Foreign Key to `dim_location(id)` |
-| `speed_kmh` | `NUMERIC(8,2)` | Average traffic speed in km/h. | |
-| `accident_flag` | `BOOLEAN` | Flag indicating if an accident occurred. | |
-| `closure_flag` | `BOOLEAN` | Flag indicating if a road was closed. | |
+| `vehicle_count` | `INT` | Vehicle count at referenced location. |  |
+| `has_accident_flag` | `BOOLEAN` | Status of the presence of an accident. |  |
+| `density_level` | `NUMERIC(10,3)` | Density level at referenced location. |  |
 
 ### Table: `fact_waste`
 A fact table storing waste management metrics.
@@ -411,8 +436,8 @@ A fact table storing waste management metrics.
 | `id` | `INT` | Unique identifier for the waste fact. | **Primary Key** (Generated) |
 | `time_id` | `INT` | Reference to the time dimension. | Foreign Key to `dim_time(id)` |
 | `location_id` | `INT` | Reference to the location dimension. | Foreign Key to `dim_location(id)` |
-| `bin_fill_level_percent` | `INT` | The fill level of waste bins as a percentage. | |
-| `recycling_tonnage` | `NUMERIC(12,3)` | Amount of recycled waste in tonnage. | |
+| `waste_type_id` | `INT` | The type of the waste. | Foreign Key to `dim_waste_type(id)` |
+| `collection_weight_kg` | `NUMERIC(12,3)` | Amount of waste collected in kilogram. | |
 
 ### Table: `fact_healthcare`
 A fact table storing healthcare metrics.
@@ -421,9 +446,31 @@ A fact table storing healthcare metrics.
 | `id` | `INT` | Unique identifier for the healthcare fact. | **Primary Key** (Generated) |
 | `time_id` | `INT` | Reference to the time dimension. | Foreign Key to `dim_time(id)` |
 | `facility_id` | `INT` | Reference to the facility dimension. | Foreign Key to `dim_facility(id)` |
-| `wait_time_minutes` | `INT` | Average patient wait time in minutes. | |
-| `alert_type` | `VARCHAR(255)` | Type of health alert (e.g., 'outbreak'). | |
-| `cases_reported` | `INT` | Number of new cases reported. | |
+| `avg_wait_time_minutes` | `NUMERIC(12,3)` | Average patient wait time in minutes. | |
+| `bed_occupancy_percent` | `NUMERIC(12,3)` | Percentage of beds occupied. | |
+| `total_revenue` | `NUMERIC(12,3)` | Total revenue of a healthcare. | |
+
+### Table: `fact_weather`
+A fact table storing weather metrics.
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `id` | `int` |  | **Primary Key** (Generated) |
+| `time_id` | `INT` | Reference to the time dimension. | Foreign Key to `dim_time(id)` |
+| `location_id` | `INT` | Reference to the location dimension. | Foreign Key to `dim_location(id)` |
+| `avg_aqi` | `NUMERIC(12,3)` | Average AQI of referenced location. |  |
+| `max_pm25` | `NUMERIC(12,3)` | Max pm2.5 of referenced location. |  |
+| `avg_temperature` | `NUMERIC(12,3)` | Average temperature of referenced location. |  |
+
+### Table: `fact_population`
+A fact table storing population metrics.
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `id` | `int` |  | **Primary Key** (Generated) |
+| `time_id` | `INT` | Reference to the time dimension. | Foreign Key to `dim_time(id)` |
+| `location_id` | `INT` | Reference to the location dimension. | Foreign Key to `dim_location(id)` |
+| `total_population` | `INT` | Total population of referenced location. |  |
+| `population_density` | `NUMERIC(12,3)` | population density of referenced location. |  |
+| `median_age` | `NUMERIC(12,3)` | Median age of referenced location. |  |
 
 ### Table: `report_metadata`
 Stores metadata about generated BI reports.
@@ -432,9 +479,10 @@ Stores metadata about generated BI reports.
 | `id` | `INT` | Unique identifier for the report. | **Primary Key** (Generated) |
 | `title` | `VARCHAR(255)` | The title of the report. | |
 | `description` | `TEXT` | A description of the report. | |
-| `category_id` | `INT` | The category of the report. | Foreign Key to `poi_categories(id)` |
+| `category_id` | `INT` | The category of the report. | Foreign Key to `dim_category(id)` |
 | `created_by_user_id` | `INT` | The user who created the report. | Foreign Key to `users(id)` |
 | `last_updated` | `TIMESTAMPTZ` | Timestamp of the last update. | `NOT NULL`, Default: `now()` |
+| `power_bi_report_id` | `VARCHAR(255)` | The id of the power bi report. |  |
 
 ---
 
