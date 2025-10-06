@@ -752,62 +752,161 @@ CREATE TABLE IF NOT EXISTS power_bi_reports (
 );
 
 -- BI Dim / Fact simplified (star schema)
-CREATE TABLE IF NOT EXISTS dim_time (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    date DATE NOT NULL,
-    year INT,
-    month INT,
-    day INT,
-    hour INT,
-    week_day VARCHAR(20)
+-- Dimension table for time-related data
+CREATE TABLE Dim_Time (
+    time_id INT PRIMARY KEY,
+    date_actual DATE,
+    year_val INT,
+    month_val INT,
+    day_val INT,
+    hour_val INT
 );
 
-CREATE TABLE IF NOT EXISTS dim_location (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    address_id INT REFERENCES addresses(id) ON DELETE SET NULL
+-- Dimension table for geographical locations
+CREATE TABLE Dim_Location (
+    location_id INT PRIMARY KEY,
+    district VARCHAR(255),
+    coordinates GEOMETRY(Point, 4326) -- Using PostGIS for coordinates
 );
 
-CREATE TABLE IF NOT EXISTS dim_facility (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    facility_id INT REFERENCES facilities(id) ON DELETE SET NULL
+-- Dimension table for facilities like hospitals or clinics
+CREATE TABLE Dim_Facility (
+    facility_id INT PRIMARY KEY,
+    facility_name VARCHAR(255),
+    location_id INT,
+    CONSTRAINT fk_location
+        FOREIGN KEY(location_id) 
+        REFERENCES Dim_Location(location_id)
 );
 
-CREATE TABLE IF NOT EXISTS fact_traffic (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    time_id INT REFERENCES dim_time(id) ON DELETE SET NULL,
-    location_id INT REFERENCES dim_location(id) ON DELETE SET NULL,
-    speed_kmh NUMERIC(8,2),
-    accident_flag BOOLEAN,
-    closure_flag BOOLEAN
+-- Dimension table for different types of waste
+CREATE TABLE Dim_Waste_Type (
+    waste_type_id INT PRIMARY KEY,
+    waste_type_name VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS fact_waste (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    time_id INT REFERENCES dim_time(id) ON DELETE SET NULL,
-    location_id INT REFERENCES dim_location(id) ON DELETE SET NULL,
-    bin_fill_level_percent INT,
-    recycling_tonnage NUMERIC(12,3)
+-- Dimension table for users/authors of reports
+CREATE TABLE Dim_User (
+    user_id INT PRIMARY KEY,
+    full_name VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
+    role_string VARCHAR(100)
 );
 
-CREATE TABLE IF NOT EXISTS fact_healthcare (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    time_id INT REFERENCES dim_time(id) ON DELETE SET NULL,
-    facility_id INT REFERENCES dim_facility(id) ON DELETE SET NULL,
-    wait_time_minutes INT,
-    alert_type VARCHAR(255),
-    cases_reported INT
-);
-
-CREATE TABLE IF NOT EXISTS report_metadata (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    title VARCHAR(255),
-    description TEXT,
-    category_id INT REFERENCES poi_categories(id) ON DELETE SET NULL,
-    created_by_user_id INT REFERENCES users(id) ON DELETE SET NULL,
-    last_updated timestamptz NOT NULL DEFAULT now()
+-- Dimension table for report categories
+CREATE TABLE Dim_Category (
+    category_id INT PRIMARY KEY,
+    category_name VARCHAR(255),
+    category_description TEXT
 );
 
 
+-- ========= METADATA TABLE =========
+
+-- Table to store metadata about the reports
+CREATE TABLE Reports_Metadata (
+    report_id INT PRIMARY KEY,
+    title_string VARCHAR(255),
+    description_string TEXT,
+    category_id INT,
+    created_by INT,
+    last_updated_datetime TIMESTAMP WITH TIME ZONE,
+    power_bi_report_id_string VARCHAR(255),
+    CONSTRAINT fk_category
+        FOREIGN KEY(category_id) 
+        REFERENCES Dim_Category(category_id),
+    CONSTRAINT fk_created_by
+        FOREIGN KEY(created_by) 
+        REFERENCES Dim_User(user_id)
+);
+
+
+-- ========= FACT TABLES =========
+
+-- Fact table for traffic data
+CREATE TABLE Fact_Traffic (
+    traffic_id INT PRIMARY KEY,
+    time_id INT,
+    location_id INT,
+    vehicle_count INT,
+    has_accident_flag BOOLEAN,
+    density_level_numeric NUMERIC(10, 2),
+    CONSTRAINT fk_time
+        FOREIGN KEY(time_id) 
+        REFERENCES Dim_Time(time_id),
+    CONSTRAINT fk_location
+        FOREIGN KEY(location_id) 
+        REFERENCES Dim_Location(location_id)
+);
+
+-- Fact table for waste collection data
+CREATE TABLE Fact_Waste (
+    waste_id INT PRIMARY KEY,
+    time_id INT,
+    location_id INT,
+    waste_type_id INT,
+    collection_weight_kg_numeric NUMERIC(10, 2),
+    CONSTRAINT fk_time
+        FOREIGN KEY(time_id) 
+        REFERENCES Dim_Time(time_id),
+    CONSTRAINT fk_location
+        FOREIGN KEY(location_id) 
+        REFERENCES Dim_Location(location_id),
+    CONSTRAINT fk_waste_type
+        FOREIGN KEY(waste_type_id) 
+        REFERENCES Dim_Waste_Type(waste_type_id)
+);
+
+-- Fact table for healthcare metrics
+CREATE TABLE Fact_Healthcare (
+    health_id INT PRIMARY KEY,
+    time_id INT,
+    facility_id INT,
+    avg_wait_time_minutes_numeric NUMERIC(10, 2),
+    bed_occupancy_percent_numeric NUMERIC(5, 2),
+    total_revenue_numeric NUMERIC(15, 2),
+    CONSTRAINT fk_time
+        FOREIGN KEY(time_id) 
+        REFERENCES Dim_Time(time_id),
+    CONSTRAINT fk_facility
+        FOREIGN KEY(facility_id) 
+        REFERENCES Dim_Facility(facility_id)
+);
+
+-- Fact table for weather data
+CREATE TABLE Fact_Weather (
+    weather_id INT PRIMARY KEY,
+    time_id INT,
+    location_id INT,
+    avg_aqi_numeric NUMERIC(10, 2),
+    max_pm25_numeric NUMERIC(10, 2),
+    avg_temperature_numeric NUMERIC(5, 2),
+    CONSTRAINT fk_time
+        FOREIGN KEY(time_id) 
+        REFERENCES Dim_Time(time_id),
+    CONSTRAINT fk_location
+        FOREIGN KEY(location_id) 
+        REFERENCES Dim_Location(location_id)
+);
+
+-- Fact table for population data
+CREATE TABLE Fact_Population (
+    population_id INT PRIMARY KEY,
+    time_id INT,
+    location_id INT,
+    total_population INT,
+    population_density_numeric NUMERIC(10, 2),
+    median_age_numeric NUMERIC(5, 2),
+    CONSTRAINT fk_time
+        FOREIGN KEY(time_id) 
+        REFERENCES Dim_Time(time_id),
+    CONSTRAINT fk_location
+        FOREIGN KEY(location_id) 
+        REFERENCES Dim_Location(location_id)
+);
+
+
+-- map marker
 CREATE TABLE IF NOT EXISTS marker_type (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     marker_type_icon VARCHAR(255),
