@@ -1,7 +1,7 @@
 //// -----------------------------------------------------------
 //// -- Project: Smart City DB
 //// -- Database: PostgreSQL with PostGIS
-//// -- Last Updated: 2025-10-4
+//// -- Last Updated: 2025-10-6
 //// -----------------------------------------------------------
 
 
@@ -28,6 +28,12 @@ Enum course_type {
   online
   onsite
   online_and_onsite
+}
+
+Enum course_status{
+  pending
+  approve
+  not_approve
 }
 
 Enum wallet_type {
@@ -244,6 +250,7 @@ Table courses {
   course_description text
   course_type course_type
   cover_image text
+  course_status course_status [default: "pending"]
   created_at timestamptz
   updated_at timestamptz
 }
