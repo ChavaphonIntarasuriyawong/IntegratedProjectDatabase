@@ -50,34 +50,31 @@ A centralized, reusable table for storing physical addresses and geographic coor
 
 **Example of Prisma data model**
 ```
-model Address {
-  id          Int      @id @default(autoincrement())
-  addressLine String
-  province    String
-  district    String
-  postalCode  String
-  location    Bytes    // <-- store geometry here
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
+model Location {
+  id        Int      @id @default(autoincrement())
+  name      String
+  coordinates Unsupported("geometry(Point, 4326)")
 }
 ```
 **inserting**
 ```
-await prisma.$executeRaw`
-  INSERT INTO "Address" (addressLine, province, district, postalCode, location)
-  VALUES (${line}, ${province}, ${district}, ${postal}, ST_SetSRID(ST_MakePoint(${lon}, ${lat}), 4326))
-`;
+    await prisma.$executeRaw`
+      INSERT INTO "Location" (name, coordinates)
+      VALUES (${name}, ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geometry)
+    `;
 ```
-**querying with 5 km**
+**querying**
 ```
-const nearby = await prisma.$queryRaw`
-  SELECT * FROM "Address"
-  WHERE ST_DWithin(
-    location,
-    ST_SetSRID(ST_MakePoint(${lon}, ${lat}), 4326),
-    5000
-  )
-`;
+    const nearestLocations = await prisma.$queryRaw`
+      SELECT
+        id,
+        name,
+        ST_AsText(coordinates) as coordinatesText, // Convert geometry to text for Prisma Client
+        ST_Distance(coordinates, ST_SetSRID(ST_MakePoint(${userLongitude}, ${userLatitude}), 4326)::geometry) as distance
+      FROM "Location"
+      ORDER BY distance
+      LIMIT 10
+    `;
 ```
 ---
 ### Table: `users`
