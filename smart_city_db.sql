@@ -68,6 +68,18 @@ DO $$ BEGIN
     CREATE TYPE alert_status AS ENUM ('unread','read', 'sent');
 EXCEPTION WHEN duplicate_object THEN NULL; END$$;
 
+DO $$ BEGIN
+    CREATE TYPE course_status AS ENUM ('pending','approve', 'not_approve');
+EXCEPTION WHEN duplicate_object THEN NULL; END$$;
+
+DO $$ BEGIN
+    CREATE TYPE apartment_internet AS ENUM ('free', 'not_free', 'none');
+    CREATE TYPE apartment_type AS ENUM ('dormitory', 'apartment');
+    CREATE TYPE apartment_location AS ENUM ('asoke', 'prachauthit', 'phathumwan');
+    CREATE TYPE room_status AS ENUM ('occupied', 'pending', 'available');
+    CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL; END$$;
+
 -- Core lookup tables
 CREATE TABLE IF NOT EXISTS roles (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -210,6 +222,7 @@ CREATE TABLE IF NOT EXISTS courses (
     course_name VARCHAR(255) NOT NULL,
     course_description TEXT,
     course_type course_type NOT NULL,
+    course_status course_status NOT NULL, DEFAULT "pending"
     cover_image TEXT,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now()
@@ -647,35 +660,73 @@ CREATE TABLE IF NOT EXISTS transportation_transactions (
     created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- Apartment / POI
-CREATE TABLE IF NOT EXISTS apartments (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+-- Apartment
+
+-- Create table: apartment
+CREATE TABLE apartment (
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255),
-    rating NUMERIC(3,2),
-    phone VARCHAR(20)
+    phone VARCHAR(10),
+    description TEXT,
+    rating_id INTEGER,
+    electric_price DOUBLE PRECISION,
+    water_price DOUBLE PRECISION,
+    internet apartment_internet,
+    apartment_type apartment_type,
+    apartment_location apartment_location,
+    address_id INTEGER,
+    FOREIGN KEY (address_id) REFERENCES addresses(id)
+    FOREIGN KEY (rating_id) REFERENCES rating(id);
 );
 
-CREATE TABLE IF NOT EXISTS apartment_addresses (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    apartment_id INT REFERENCES apartments(id) ON DELETE CASCADE,
-    address_id INT REFERENCES addresses(id) ON DELETE SET NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
+-- Create table: room
+CREATE TABLE room (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    type VARCHAR(255),
+    size VARCHAR(50),
+    room_status room_status,
+    price_start DOUBLE PRECISION,
+    price_end DOUBLE PRECISION,
+    apartment_id INTEGER REFERENCES apartment(id)
 );
 
-CREATE TABLE IF NOT EXISTS poi_categories (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    category_name VARCHAR(255) NOT NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
+-- Create table: apartment_picture
+CREATE TABLE apartment_picture (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    file_path TEXT NOT NULL,
+    apartment_id INTEGER NOT NULL REFERENCES apartment(id)
 );
 
-CREATE TABLE IF NOT EXISTS poi_locations (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    location geometry(Point,4326),
-    category_id INT REFERENCES poi_categories(id) ON DELETE SET NULL
+-- Create table: rating
+CREATE TABLE rating (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    rating DOUBLE PRECISION,
+    comment TEXT,
+    created_at TIMESTAMPTZ
 );
+
+-- Create table: apartment_owner
+CREATE TABLE apartment_owner (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    apartment_id INTEGER NOT NULL REFERENCES apartment(id)
+);
+
+-- Create table: apartment_booking
+CREATE TABLE apartment_booking (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    check_in TIMESTAMPTZ,
+    booking_status booking_status DEFAULT 'pending',
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ
+);
+
+
+
 
 -- Waste management
 CREATE TABLE IF NOT EXISTS waste_types (
