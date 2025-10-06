@@ -1,7 +1,7 @@
 # Smart City DB Data Dictionary
 * **Project:** Smart City DB
 * **Database:** Firebase RTDB and PostgreSQL with PostGIS
-* **Last Updated:** 2025-10-5
+* **Last Updated:** 2025-10-6
 ---
 
 ## Core Infrastructure & Users
