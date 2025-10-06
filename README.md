@@ -153,6 +153,7 @@ Stores main information about available educational courses.
 | `course_name` | `VARCHAR(255)` | The title of the course. | `NOT NULL` |
 | `course_description` | `TEXT` | A detailed description of the course content. | |
 | `course_type` | `course_type` | Delivery format ('online', 'onsite', 'online_and_onsite'). | `NOT NULL` |
+| `course_status` | `course_status` | status of course ('pending', 'approve', 'not_approve'). | Default: `pending`|
 | `cover_image` | `TEXT` | URL to the course's cover image. | |
 | `created_at` | `TIMESTAMPTZ` | Timestamp of course creation. | `NOT NULL`, Default: `now()` |
 | `updated_at` | `TIMESTAMPTZ` | Timestamp of the last update. | `NOT NULL`, Default: `now()` |
