@@ -145,7 +145,7 @@ model roles {
 }
 
 model specialty {
-  id                      Int                      @id @deafult(autoincrement())
+  id                      Int                      @id @default(autoincrement())
   specialty_name          String                   @unique @db.Varchar(50)
 }
 
