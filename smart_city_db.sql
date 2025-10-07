@@ -86,6 +86,11 @@ CREATE TABLE IF NOT EXISTS roles (
     role_name VARCHAR(50) NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS specialty (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    specialty_name VARCHAR(50) NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS departments (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     department_name VARCHAR(255) NOT NULL UNIQUE,
@@ -222,7 +227,7 @@ CREATE TABLE IF NOT EXISTS courses (
     course_name VARCHAR(255) NOT NULL,
     course_description TEXT,
     course_type course_type NOT NULL,
-    course_status course_status NOT NULL, DEFAULT "pending"
+    course_status course_status NOT NULL DEFAULT 'pending',
     cover_image TEXT,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now()
@@ -477,7 +482,7 @@ CREATE TABLE IF NOT EXISTS traffic_lights (
     intersection_id INT REFERENCES intersections(id) ON DELETE SET NULL,
     ip_address INET,
     location geometry(Point,4326),
-    status INT DEFAULT,
+    status INT DEFAULT 0,
     current_color SMALLINT,
     density_level SMALLINT,
     auto_mode BOOLEAN DEFAULT TRUE,
@@ -662,6 +667,15 @@ CREATE TABLE IF NOT EXISTS transportation_transactions (
 
 -- Apartment
 
+-- Create table: rating
+CREATE TABLE rating (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    rating DOUBLE PRECISION,
+    comment TEXT,
+    created_at TIMESTAMPTZ
+);
+
 -- Create table: apartment
 CREATE TABLE apartment (
     id SERIAL PRIMARY KEY,
@@ -675,8 +689,8 @@ CREATE TABLE apartment (
     apartment_type apartment_type,
     apartment_location apartment_location,
     address_id INTEGER,
-    FOREIGN KEY (address_id) REFERENCES addresses(id)
-    FOREIGN KEY (rating_id) REFERENCES rating(id);
+    FOREIGN KEY (address_id) REFERENCES addresses(id),
+    FOREIGN KEY (rating_id) REFERENCES rating(id)
 );
 
 -- Create table: room
@@ -699,14 +713,7 @@ CREATE TABLE apartment_picture (
     apartment_id INTEGER NOT NULL REFERENCES apartment(id)
 );
 
--- Create table: rating
-CREATE TABLE rating (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id),
-    rating DOUBLE PRECISION,
-    comment TEXT,
-    created_at TIMESTAMPTZ
-);
+
 
 -- Create table: apartment_owner
 CREATE TABLE apartment_owner (
@@ -938,5 +945,4 @@ CREATE INDEX IF NOT EXISTS idx_volunteer_events_start_at ON volunteer_events(sta
 -- Check constraint and triggers
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS last_login timestamptz;
-
 
