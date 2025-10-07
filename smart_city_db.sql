@@ -1,6 +1,6 @@
 -- Smart City DB
 -- PostgreSQL SQL and PostGIS geometry
--- Last updated: 2025-10-6
+-- Last updated: 2025-10-7
 -- Notes:
 -- 1) Timestamps use timestamptz and default to now().
 -- 2) Use GENERATED AS IDENTITY for PKs.
