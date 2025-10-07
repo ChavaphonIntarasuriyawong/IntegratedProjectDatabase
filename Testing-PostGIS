@@ -1,0 +1,87 @@
+-- Testing Script for PostGIS Functionality on Addresses Table
+
+-- This SQL script tests the PostGIS extension and its integration with the 'addresses' table in the Smart City DB schema.
+-- Assumptions:
+-- 1. PostgreSQL with PostGIS extension is installed and enabled (via CREATE EXTENSION postgis;).
+-- 2. The 'addresses' table exists as defined in the schema, with a 'location' column of type geometry(Point, 4326).
+-- 3. This script uses PL/pgSQL for structured testing, including assertions to validate results.
+-- 4. Tests include: insertion of spatial data, geometry validation, distance calculations, and spatial indexing.
+-- 5. Run this script in a testing environment to avoid impacting production data. It inserts temporary data and cleans up afterward.
+-- 6. If any test fails, an exception will be raised with a descriptive message.
+
+-- Begin testing in a DO block for encapsulation.
+DO $$
+DECLARE
+    addr_id1 INT;
+    addr_id2 INT;
+    addr_id3 INT;
+    dist Numeric;
+    geom_type Text;
+BEGIN
+    -- Test 1: Insert sample addresses with PostGIS points (longitude, latitude in SRID 4326).
+    -- Insert Address 1: Bangkok City Hall (approx. 100.4939, 13.7510)
+    INSERT INTO addresses (address_line, province, district, subdistrict, postal_code, location)
+    VALUES ('1 Phra Arthit Road', 'Bangkok', 'Phra Nakhon', 'Phra Borom Maha Ratchawang', '10200', ST_SetSRID(ST_MakePoint(100.4939, 13.7510), 4326))
+    RETURNING id INTO addr_id1;
+
+    -- Insert Address 2: Lumpini Park (approx. 100.5412, 13.7306)
+    INSERT INTO addresses (address_line, province, district, subdistrict, postal_code, location)
+    VALUES ('192 Wireless Road', 'Bangkok', 'Pathum Wan', 'Lumphini', '10330', ST_SetSRID(ST_MakePoint(100.5412, 13.7306), 4326))
+    RETURNING id INTO addr_id2;
+
+    -- Insert Address 3: Suvarnabhumi Airport (approx. 100.7501, 13.6900)
+    INSERT INTO addresses (address_line, province, district, subdistrict, postal_code, location)
+    VALUES ('999 Bang Na-Trat Road', 'Samut Prakan', 'Bang Phli', 'Nong Prue', '10540', ST_SetSRID(ST_MakePoint(100.7501, 13.6900), 4326))
+    RETURNING id INTO addr_id3;
+
+    -- Assertion: Verify insertions succeeded (check row count).
+    IF (SELECT COUNT(*) FROM addresses WHERE id IN (addr_id1, addr_id2, addr_id3)) != 3 THEN
+        RAISE EXCEPTION 'Test 1 Failed: Expected 3 insertions, but found fewer.';
+    END IF;
+
+    -- Test 2: Validate geometry type and SRID.
+    SELECT ST_GeometryType(location), ST_SRID(location) INTO geom_type, dist FROM addresses WHERE id = addr_id1;
+    IF geom_type != 'ST_Point' OR dist != 4326 THEN
+        RAISE EXCEPTION 'Test 2 Failed: Invalid geometry type or SRID for address ID % (expected ST_Point with SRID 4326).', addr_id1;
+    END IF;
+
+    -- Test 3: Calculate distance between two points (Bangkok City Hall to Lumpini Park).
+    -- Use ST_Distance with geography cast for accurate great-circle distance in meters.
+    SELECT ROUND(ST_Distance(
+        (SELECT location::geography FROM addresses WHERE id = addr_id1),
+        (SELECT location::geography FROM addresses WHERE id = addr_id2)
+    )) INTO dist;
+    -- Expected approximate distance: ~5-6 km (5000-6000 meters). Adjust threshold as needed for precision.
+    IF dist < 5000 OR dist > 6000 THEN
+        RAISE EXCEPTION 'Test 3 Failed: Distance between addresses % and % is % meters (expected ~5000-6000 meters).', addr_id1, addr_id2, dist;
+    END IF;
+
+    -- Test 4: Spatial query - Find addresses within a radius (e.g., within 10 km of Bangkok City Hall).
+    SELECT COUNT(*) INTO dist FROM addresses
+    WHERE ST_DWithin(
+        location::geography,
+        (SELECT location::geography FROM addresses WHERE id = addr_id1),
+        10000  -- 10 km radius
+    );
+    -- Expect at least 2 (City Hall and Lumpini Park; Airport is ~25 km away).
+    IF dist < 2 THEN
+        RAISE EXCEPTION 'Test 4 Failed: Fewer than 2 addresses found within 10 km radius of address ID %.', addr_id1;
+    END IF;
+
+    -- Test 5: Test spatial index (assuming GIST index exists on location).
+    -- This is indirect; execute a query to ensure it runs (manual EXPLAIN review recommended for index usage).
+    -- Use PERFORM to discard results and avoid the 'no destination' error.
+    PERFORM * FROM addresses WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint(100.4939, 13.7510), 4326), 0.1);
+    -- No assertion here; if needed, run EXPLAIN manually outside this script for "Index Scan using idx_addresses_location".
+
+    -- Cleanup: Delete test data.
+    DELETE FROM addresses WHERE id IN (addr_id1, addr_id2, addr_id3);
+
+    -- All tests passed.
+    RAISE NOTICE 'All PostGIS tests on addresses table completed successfully.';
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Rollback insertions on failure.
+        DELETE FROM addresses WHERE id IN (addr_id1, addr_id2, addr_id3);
+        RAISE;
+END $$;
