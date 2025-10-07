@@ -2,12 +2,13 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  extensions = [postgis] // Enable postgis extension
+  extensions = [postgis()] // Enable postgis extension
 }
 
 // ==================================
