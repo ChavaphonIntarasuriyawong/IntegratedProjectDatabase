@@ -144,6 +144,11 @@ model roles {
   users     users[]
 }
 
+model specialty {
+  id                      Int                      @id @deafult(autoincrement())
+  specialty_name          String                   @unique @db.Varchar(50)
+}
+
 model departments {
   id                      Int                       @id @default(autoincrement())
   department_name         String                    @unique @db.VarChar(255)
