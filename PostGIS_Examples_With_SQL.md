@@ -1,6 +1,6 @@
 # PostGIS Examples
 
-## 1\. Inserting Geographic Data 📍
+## 1\. Inserting Geographic Data 
 
 The first step is to get location data into your database. PostGIS needs the data in a specific geometric format. The most common way to do this is by creating a `POINT` geometry from longitude and latitude values.
 
@@ -28,7 +28,7 @@ VALUES (
 
 -----
 
-## 2\. Finding Nearby Objects (Proximity Search) 🗺️
+## 2\. Finding Nearby Objects (Proximity Search) 
 
 This is the most common and powerful use of PostGIS. You can efficiently find all points within a certain distance of another point.
 
@@ -69,7 +69,7 @@ WHERE
 
 -----
 
-## 3\. Finding the Closest Object (K-Nearest Neighbor) 🥇
+## 3\. Finding the Closest Object (K-Nearest Neighbor) 
 
 Sometimes you don't need everything within a radius; you just need the single closest one.
 
@@ -104,7 +104,7 @@ LIMIT 1; -- We only want the closest one
 
 -----
 
-## 4\. Retrieving and Formatting Geospatial Data 🌐
+## 4\. Retrieving and Formatting Geospatial Data 
 
 When you send location data to a front-end application (like a web map), you often need it in a standard format like GeoJSON or simply as separate latitude/longitude numbers.
 
