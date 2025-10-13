@@ -76,6 +76,12 @@ model Location {
       LIMIT 10
     `;
 ```
+### Table: `users_specialty`
+Stores user specialty
+| Column | Data Type | Description | Constraints / Notes |
+| :--- | :--- | :--- | :--- |
+| `user_id` | INT` | FK to user table ||
+| `specialty_id` | `INT` | FK to specialty table | |
 ---
 ### Table: `users`
 Stores core authentication credentials and essential user information. Personal details are normalized into `user_profiles`.
