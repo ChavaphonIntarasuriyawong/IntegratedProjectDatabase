@@ -6,6 +6,8 @@
 -- 2) Use GENERATED AS IDENTITY for PKs.
 -- 3) Use PostGIS geometry(Point,4326) for coordinates.
 
+ALTER TABLE spacialty
+RENAME TO specialty;
 
 -- Required extensions
 CREATE EXTENSION IF NOT EXISTS postgis;
@@ -86,7 +88,7 @@ CREATE TABLE IF NOT EXISTS roles (
     role_name VARCHAR(50) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS specialty (
+CREATE TABLE IF NOT EXISTS spacialty (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     specialty_name VARCHAR(50) NOT NULL UNIQUE
 );
@@ -112,6 +114,13 @@ CREATE TABLE IF NOT EXISTS addresses (
 );
 
 -- Users and profiles -- split auth credentials from profile data
+CREATE TABLE IF NOT EXISTS users_specialty (
+    user_id INT REFERENCES users(id) ON DELETE SET NULL,
+    specialty_id INT REFERENCES specialty(id) ON DELETE SET NULL,
+    PRIMARY KEY (user_id, specialty_id)
+);
+
+
 CREATE TABLE IF NOT EXISTS users (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
