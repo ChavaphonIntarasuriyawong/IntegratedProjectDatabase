@@ -623,14 +623,6 @@ CREATE TABLE "sos" (
     "updated_at" TIMESTAMPTZ(6) DEFAULT now()
 );
 
-CREATE TABLE "spatial_ref_sys" (
-    "srid" INTEGER NOT NULL PRIMARY KEY,
-    "auth_name" VARCHAR(256),
-    "auth_srid" INTEGER,
-    "srtext" VARCHAR(2048),
-    "proj4text" VARCHAR(2048)
-);
-
 CREATE TABLE "specialty" (
     "id" SERIAL PRIMARY KEY,
     "specialty_name" VARCHAR(50) NOT NULL UNIQUE
