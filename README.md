@@ -2,7 +2,7 @@
 
 * **Project:** Smart City DB
 * **Database:** PostgreSQL with PostGIS
-* **Last Updated:** 2025-11-14
+* **Last Updated:** 2025-11-19
 
 ---
 
@@ -1170,7 +1170,19 @@ This table stores chat messages.
 
 ## G15: Waste Management
 
-This section tracks waste types and collection statistics.
+This section tracks waste bins, types, collection statistics, and reports.
+
+### Enum: `BinType`
+
+Defines types of waste bins.
+
+Values: 'RECYCLABLE', 'GENERAL', 'HAZARDOUS', 'ORGANIC'
+
+### Enum: `BinStatus`
+
+Defines status of waste bins.
+
+Values: 'NORMAL', 'OVERFLOW', 'NEEDS_COLLECTION', 'MAINTENANCE'
 
 ### Table: `waste_types`
 
@@ -1205,6 +1217,27 @@ This table links statistics to Power BI reports.
 | `report_type`             | `VARCHAR(255)` | Report type.                            |                                      |
 | `report_date`             | `TIMESTAMPTZ(6)`| Generation date.                        |                                      |
 | `created_at`              | `TIMESTAMPTZ(6)`| Creation timestamp.                     | `NOT NULL`, Default: `now()`        |
+
+### Table: `bin_locations`
+
+This table stores locations and status of waste bins.
+
+| Column                   | Data Type        | Description                              | Constraints / Notes                  |
+|--------------------------|------------------|------------------------------------------|--------------------------------------|
+| `id`                    | `SERIAL`        | Auto incrementing primary key.          | **Primary Key**                     |
+| `bin_name`              | `VARCHAR(255)`  | Bin name (max length 255).              | `NOT NULL`                          |
+| `bin_type`              | `BinType`       | Bin type (enum).                        | `NOT NULL`                          |
+| `latitude`              | `DECIMAL(10, 8)`| Latitude with precision of 10 and scale of 8. | `NOT NULL`                          |
+| `longitude`             | `DECIMAL(11, 8)`| Longitude with precision of 11 and scale of 8. | `NOT NULL`                          |
+| `address`               | `TEXT`          | Address (nullable).                     |                                      |
+| `capacity_kg`           | `DECIMAL(10, 2)`| Capacity in kilograms (nullable).       |                                      |
+| `status`                | `BinStatus`     | Bin status with default value 'NORMAL'. | Default: `'NORMAL'`                 |
+| `last_collected_at`     | `TIMESTAMP`     | Last collected time (default to current timestamp). | Default: `NOW()`                    |
+| `total_collected_weight`| `DECIMAL(10, 2)`| Total collected weight (default to 0).  | Default: `0`                        |
+| `created_at`            | `TIMESTAMP`     | Created at timestamp (default to current timestamp). | Default: `NOW()`                    |
+| `updated_at`            | `TIMESTAMP`     | Updated at timestamp (default to current timestamp). | Default: `NOW()`                    |
+
+**Note:** Indexes: `idx_bin_type` on `bin_type`, `idx_status` on `status`, `idx_latitude_longitude` on (`latitude`, `longitude`).
 
 ---
 
